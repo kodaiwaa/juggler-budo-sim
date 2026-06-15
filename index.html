@@ -45,6 +45,13 @@
   .conf-low  { background: #3a2a2a; color: #ff8a8a; }
   .conf-mid  { background: #3a3a1a; color: #ffd060; }
   .conf-high { background: #1a3a2a; color: #6aff6a; }
+  .budo-counter-wrap { margin-top:12px; border-top:1px solid #2a2a4a; padding-top:12px; }
+  .budo-counter-label { font-size:0.82rem; color:#888; margin-bottom:8px; }
+  .budo-counter-row { display:flex; align-items:center; gap:10px; }
+  .budo-count-btn { flex:0 0 auto; padding:14px 22px; background:#1e2a10; border:2px solid #6aff6a; border-radius:10px; color:#6aff6a; font-size:1.1rem; font-weight:700; cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:rgba(106,255,106,.2); user-select:none; -webkit-user-select:none; }
+  .budo-count-display { font-size:1.5rem; font-weight:700; color:#f0c040; min-width:70px; text-align:center; }
+  .budo-reset-btn { font-size:0.75rem; color:#555; background:none; border:1px solid #333; border-radius:6px; padding:4px 10px; cursor:pointer; touch-action:manipulation; }
+  .budo-source-badge { display:inline-block; font-size:0.72rem; padding:2px 8px; border-radius:10px; background:#1a2a3a; color:#4a9eff; margin-top:3px; }
 
   /* 横棒グラフ */
   .bar-chart { }
@@ -278,6 +285,15 @@
         <p style="font-size:0.74rem; color:#555; margin-top:6px;">※ 空欄の場合は判定に使用しません。特にREG重複は設定差が出やすい。</p>
       </details>
     </div>
+    <div class="budo-counter-wrap">
+      <div class="budo-counter-label">🍇 ぶどうカウンター（任意・入力すると実測値を優先）</div>
+      <div class="budo-counter-row">
+        <button class="budo-count-btn" id="budo-count-btn">🍇 +1</button>
+        <div class="budo-count-display"><span id="budo-count-val">0</span> 回</div>
+        <input type="number" id="inp-budo" style="display:none;" min="0">
+        <button class="budo-reset-btn" id="budo-reset-btn">リセット</button>
+      </div>
+    </div>
     <button class="btn btn-primary" onclick="calculate()">設定を推定する</button>
   </div>
 
@@ -307,6 +323,7 @@
           <div class="stat-label">ぶどう確率</div>
           <div class="stat-value">1/<span id="st-budo">—</span></div>
           <div class="stat-sub" id="st-budo-judge">—</div>
+          <div id="st-budo-source"></div>
         </div>
         <div class="stat-box">
           <div class="stat-label">BIG確率</div>
@@ -885,6 +902,14 @@ function calculate() {
   const params = getParams();
   const r = calcBudo(P, BIG, REG, D, params);
 
+  // 実測ぶどうカウントがあれば優先
+  const budoActual = +document.getElementById('inp-budo').value;
+  const useActual = budoActual > 0;
+  if (useActual) {
+    r.budoCnt  = budoActual;
+    r.budoProb = P / budoActual;
+  }
+
   if (!r.budoProb || r.budoCnt <= 0) {
     alert('ぶどう回数が0以下になりました。入力値を確認してください。');
     return;
@@ -935,6 +960,8 @@ function calculate() {
     else budoJudge = '低設定寄り';
   }
   document.getElementById('st-budo-judge').textContent = budoJudge;
+  const srcEl = document.getElementById('st-budo-source');
+  srcEl.innerHTML = useActual ? '<span class="budo-source-badge">実測カウントから算出</span>' : '';
 
   // BIG/REG設定4基準差分
   const bigDiffEl = document.getElementById('st-big-diff');
@@ -1066,6 +1093,20 @@ function renderMachineSpec(params, targetId) {
 }
 
 // ===== モード切り替え =====
+// ぶどうカウンター
+(function() {
+  let count = 0;
+  const countVal = document.getElementById('budo-count-val');
+  const hiddenInput = document.getElementById('inp-budo');
+  function update() { countVal.textContent = count; hiddenInput.value = count > 0 ? count : ''; }
+  const incBtn = document.getElementById('budo-count-btn');
+  const rstBtn = document.getElementById('budo-reset-btn');
+  incBtn.addEventListener('click', () => { count++; update(); });
+  incBtn.addEventListener('touchend', e => { e.preventDefault(); count++; update(); });
+  rstBtn.addEventListener('click', () => { count = 0; update(); });
+  rstBtn.addEventListener('touchend', e => { e.preventDefault(); count = 0; update(); });
+})();
+
 document.querySelectorAll('.mode-tab[data-mode]').forEach(btn => {
   btn.addEventListener('click', () => switchMode(btn.dataset.mode));
   btn.addEventListener('touchend', e => { e.preventDefault(); switchMode(btn.dataset.mode); });
