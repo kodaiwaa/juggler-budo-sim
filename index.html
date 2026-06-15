@@ -361,28 +361,6 @@
     </div>
   </div>
 
-  <!-- 差枚逆算コマンド（常に表示） -->
-  <div class="card" style="margin-top:14px;">
-    <h2>差枚逆算コマンド</h2>
-    <div class="formula-box">
-<span class="comment">// 入力</span>
-P  = 総ゲーム数
-BIG, REG = ボーナス回数
-D  = 差枚数（現在の差枚）
-
-<span class="comment">// ステップ1: ぶどう枚数を逆算</span>
-ぶどう枚数合計
-  = -(P×3 - BIG×BIG枚数 - REG×REG枚数
-       - (P/リプ確率)×3 - (P/チェリー確率)×チェリー枚数
-       - D)
-
-<span class="comment">// ステップ2: ぶどう回数 → 確率</span>
-ぶどう回数  = ぶどう枚数合計 ÷ 8
-ぶどう確率  = P ÷ ぶどう回数  <span class="comment">→ 1/X の形で表示</span>
-
-<span class="comment">// 注: リプ・チェリー以外の小役補正なし（簡易版）</span>
-    </div>
-  </div>
 
   </div><!-- /mode-single -->
 
