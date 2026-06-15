@@ -94,6 +94,13 @@
   .spec-table tr.spec-highlight td { color: #f0c040; font-weight: 700; background: #1e2a10; }
   .spec-table td.observed { color: #6aff6a; font-weight: 700; }
 
+  /* ===== ミニスペック表（機械割・BIG/REG/合算/ぶどう） ===== */
+  .mini-spec-wrap { margin-top: 14px; border-top: 1px solid #2a2a4a; padding-top: 12px; }
+  .mini-spec-table { width: 100%; border-collapse: collapse; }
+  .mini-spec-table th { background: #0d1220; color: #666; padding: 5px 2px; text-align: center; font-weight: 500; white-space: nowrap; font-size: 0.68rem; }
+  .mini-spec-table td { padding: 4px 2px; text-align: center; border-bottom: 1px solid #1e2a3e; white-space: nowrap; font-size: 0.70rem; }
+  .mini-spec-note { font-size: 0.68rem; color: #555; margin-top: 5px; line-height: 1.5; }
+
   /* 注記 */
   .notice { font-size: 0.74rem; color: #555; line-height: 1.6; padding: 10px; background: #0d1220; border-radius: 8px; margin-top: 12px; }
 
@@ -216,6 +223,7 @@
       <div class="spec-item"><span class="spec-k">リプレイ確率</span><span class="spec-v" id="ps-rep">1/7.3</span></div>
       <div class="spec-item"><span class="spec-k">チェリー確率</span><span class="spec-v" id="ps-che">1/38.08</span></div>
       <div id="cbig-note" style="display:none;margin-top:6px;font-size:0.78em;color:#e67e22;background:#fff8f0;border:1px solid #f5cba7;border-radius:4px;padding:4px 8px;">⚠️ チェリー重複確率は近似値（未公式解析）。判定の参考値として使用のこと。</div>
+      <div id="spec-mini-single"></div>
     </div>
 
     <div class="custom-params" id="custom-params">
@@ -411,6 +419,7 @@ D  = 差枚数（現在の差枚）
         </div>
       </div>
       <div id="isl-cbig-note" style="display:none;margin-top:8px;font-size:0.78em;color:#e67e22;background:#1a1000;border:1px solid #7a5000;border-radius:4px;padding:4px 8px;">⚠️ チェリー重複確率は近似値（未公式解析）。判定の参考値として使用のこと。</div>
+      <div id="spec-mini-island"></div>
     </div>
 
     <div class="card">
@@ -507,6 +516,7 @@ D  = 差枚数（現在の差枚）
         </div>
       </div>
       <div id="cmp-cbig-note" style="display:none;margin-top:8px;font-size:0.78em;color:#e67e22;background:#1a1000;border:1px solid #7a5000;border-radius:4px;padding:4px 8px;">⚠️ チェリー重複確率は近似値（未公式解析）。判定の参考値として使用のこと。</div>
+      <div id="spec-mini-compare"></div>
     </div>
 
     <!-- A/B グループ入力 -->
@@ -588,7 +598,8 @@ D  = 差枚数（現在の差枚）
 <script>
 const PRESETS = {
   myj: {
-    name: 'マイジャグラーV', cbigVerified: true,
+    name: 'マイジャグラーV', cbigVerified: true, payoutVerified: true,
+    payout: [97.8, 99.6, 101.1, 104.0, 107.0, 110.3],
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 38.08, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.30, 6.12, 5.97, 5.79, 5.48, 5.13],
@@ -599,7 +610,8 @@ const PRESETS = {
     }
   },
   aimj: {
-    name: 'アイムジャグラーEX', cbigVerified: true,
+    name: 'アイムジャグラーEX', cbigVerified: true, payoutVerified: true,
+    payout: [97.0, 98.0, 99.5, 101.1, 103.3, 105.5],
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 33.3, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.31, 6.16, 6.00, 5.81, 5.63, 5.40],
@@ -610,7 +622,8 @@ const PRESETS = {
     }
   },
   funky: {
-    name: 'ファンキージャグラー2', cbigVerified: true,
+    name: 'ファンキージャグラー2', cbigVerified: true, payoutVerified: false,
+    payout: [97.7, 99.2, 100.3, 102.6, 105.3, 109.0],
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 35.7, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.24, 6.12, 5.97, 5.79, 5.51, 5.21],
@@ -621,7 +634,8 @@ const PRESETS = {
     }
   },
   gogo: {
-    name: 'ゴーゴージャグラー3', cbigVerified: true,
+    name: 'ゴーゴージャグラー3', cbigVerified: true, payoutVerified: false,
+    payout: [97.9, 99.7, 101.5, 103.9, 107.2, 110.0],
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 33.3, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.31, 6.16, 6.00, 5.81, 5.55, 5.13],
@@ -632,7 +646,8 @@ const PRESETS = {
     }
   },
   neoaimj: {
-    name: 'ネオアイムジャグラーEX', cbigVerified: false,
+    name: 'ネオアイムジャグラーEX', cbigVerified: false, payoutVerified: false,
+    payout: [97.0, 98.0, 99.5, 101.1, 103.3, 105.5],
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 33.3, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.02, 6.02, 6.02, 6.02, 6.02, 5.78],
@@ -643,7 +658,8 @@ const PRESETS = {
     }
   },
   happy: {
-    name: 'ハッピージャグラーVIII', cbigVerified: false,
+    name: 'ハッピージャグラーVIII', cbigVerified: false, payoutVerified: false,
+    payout: [97.3, 98.4, 99.9, 101.7, 104.1, 107.5],
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 32.8, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.05, 6.04, 6.02, 5.90, 5.81, 5.75],
@@ -654,7 +670,8 @@ const PRESETS = {
     }
   },
   girls: {
-    name: 'ジャグラーガールズSS', cbigVerified: false,
+    name: 'ジャグラーガールズSS', cbigVerified: false, payoutVerified: false,
+    payout: [97.2, 98.1, 99.5, 101.2, 103.6, 106.3],
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 33.3, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [5.98, 5.98, 5.98, 5.98, 5.88, 5.83],
@@ -665,7 +682,8 @@ const PRESETS = {
     }
   },
   mister: {
-    name: 'ミスタージャグラー', cbigVerified: false,
+    name: 'ミスタージャグラー', cbigVerified: false, payoutVerified: false,
+    payout: [97.0, 97.9, 99.0, 100.6, 102.9, 105.7],
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 38.08, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.29, 6.22, 6.15, 6.09, 6.02, 5.96],
@@ -676,7 +694,8 @@ const PRESETS = {
     }
   },
   ultra: {
-    name: 'ウルトラミラクルジャグラー', cbigVerified: false,
+    name: 'ウルトラミラクルジャグラー', cbigVerified: false, payoutVerified: false,
+    payout: [96.9, 97.8, 98.9, 100.5, 102.5, 105.2],
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 33.3, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [5.93, 5.93, 5.93, 5.93, 5.87, 5.81],
@@ -708,6 +727,7 @@ function applyPreset() {
   document.getElementById('ps-rep').textContent = '1/' + p.rep;
   document.getElementById('ps-che').textContent = '1/' + p.che;
   document.getElementById('cbig-note').style.display = (p.cbigVerified === false) ? 'block' : 'none';
+  renderMachineSpec(p, 'spec-mini-single');
 
   if (isCustom) {
     document.getElementById('p-big').value = p.big;
@@ -970,6 +990,35 @@ function calculate() {
 
 applyPreset();
 
+// ===== ミニスペック表描画 =====
+function renderMachineSpec(params, targetId) {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  if (!params || !params.theory) { el.innerHTML = ''; return; }
+  const t = params.theory;
+  let rows = '';
+  for (let i = 0; i < 6; i++) {
+    const sum = 1 / (1/t.big[i] + 1/t.reg[i]);
+    const pay = params.payout ? params.payout[i].toFixed(1) + '%' : '—';
+    rows += `<tr>
+      <td>設${i+1}</td>
+      <td>1/${t.big[i].toFixed(1)}</td>
+      <td>1/${t.reg[i].toFixed(1)}</td>
+      <td>1/${sum.toFixed(1)}</td>
+      <td>1/${t.budo[i].toFixed(2)}</td>
+      <td>${pay}</td>
+    </tr>`;
+  }
+  const note = (params.payoutVerified === false)
+    ? '<p class="mini-spec-note">※ 機械割は参考値（非公式解析・要確認）</p>'
+    : '';
+  el.innerHTML = `<div class="mini-spec-wrap">
+    <table class="mini-spec-table">
+      <thead><tr><th>設定</th><th>BIG</th><th>REG</th><th>合算</th><th>ぶどう</th><th>機械割</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>${note}</div>`;
+}
+
 // ===== モード切り替え =====
 document.querySelectorAll('.mode-tab[data-mode]').forEach(btn => {
   btn.addEventListener('click', () => switchMode(btn.dataset.mode));
@@ -994,6 +1043,7 @@ function applyIslandPreset() {
   const key = document.getElementById('isl-preset').value;
   const p = PRESETS[key];
   document.getElementById('isl-cbig-note').style.display = (p && p.cbigVerified === false) ? 'block' : 'none';
+  renderMachineSpec(p, 'spec-mini-island');
 }
 
 function addIslandRow(defaults) {
@@ -1289,6 +1339,7 @@ function applyCmpPreset() {
   const key = document.getElementById('cmp-preset').value;
   const p = PRESETS[key];
   document.getElementById('cmp-cbig-note').style.display = (p && p.cbigVerified === false) ? 'block' : 'none';
+  renderMachineSpec(p, 'spec-mini-compare');
 }
 
 function addCmpRow(group, defaults) {
