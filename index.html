@@ -100,6 +100,9 @@
   .mini-spec-table th { background: #0d1220; color: #666; padding: 5px 2px; text-align: center; font-weight: 500; white-space: nowrap; font-size: 0.68rem; }
   .mini-spec-table td { padding: 4px 2px; text-align: center; border-bottom: 1px solid #1e2a3e; white-space: nowrap; font-size: 0.70rem; }
   .mini-spec-note { font-size: 0.68rem; color: #555; margin-top: 5px; line-height: 1.5; }
+  .ps-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+  .ps-tab { flex: 1; padding: 5px 2px; border: 1px solid #2a2a4a; border-radius: 6px; background: #1a1a2e; color: #666; cursor: pointer; font-size: 0.68rem; font-weight: 600; text-align: center; touch-action: manipulation; -webkit-tap-highlight-color: rgba(240,192,64,.2); user-select: none; -webkit-user-select: none; }
+  .ps-tab.active { border-color: #f0c040; color: #f0c040; background: #1e2a10; }
 
   /* 注記 */
   .notice { font-size: 0.74rem; color: #555; line-height: 1.6; padding: 10px; background: #0d1220; border-radius: 8px; margin-top: 12px; }
@@ -599,7 +602,7 @@ D  = 差枚数（現在の差枚）
 const PRESETS = {
   myj: {
     name: 'マイジャグラーV', cbigVerified: true, payoutVerified: true,
-    payout: [97.8, 99.6, 101.1, 104.0, 107.0, 110.3],
+    payout: { kouhyo: [97.8, 99.6, 101.1, 104.0, 107.0, 110.3], cherry: null, full: null },
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 38.08, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.30, 6.12, 5.97, 5.79, 5.48, 5.13],
@@ -611,7 +614,11 @@ const PRESETS = {
   },
   aimj: {
     name: 'アイムジャグラーEX', cbigVerified: true, payoutVerified: true,
-    payout: [97.0, 98.0, 99.5, 101.1, 103.3, 105.5],
+    payout: {
+      kouhyo: [97.0,  98.0,  99.5,  101.1, 103.3, 105.5],
+      cherry: [97.97, 99.09, 100.75, 102.53, 104.93, 107.29],
+      full:   [98.70, 99.82, 101.48, 103.27, 105.66, 108.01],
+    },
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 33.3, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.31, 6.16, 6.00, 5.81, 5.63, 5.40],
@@ -623,7 +630,7 @@ const PRESETS = {
   },
   funky: {
     name: 'ファンキージャグラー2', cbigVerified: true, payoutVerified: false,
-    payout: [97.7, 99.2, 100.3, 102.6, 105.3, 109.0],
+    payout: { kouhyo: [97.7, 99.2, 100.3, 102.6, 105.3, 109.0], cherry: null, full: null },
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 35.7, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.24, 6.12, 5.97, 5.79, 5.51, 5.21],
@@ -635,7 +642,7 @@ const PRESETS = {
   },
   gogo: {
     name: 'ゴーゴージャグラー3', cbigVerified: true, payoutVerified: false,
-    payout: [97.9, 99.7, 101.5, 103.9, 107.2, 110.0],
+    payout: { kouhyo: [97.9, 99.7, 101.5, 103.9, 107.2, 110.0], cherry: null, full: null },
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 33.3, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.31, 6.16, 6.00, 5.81, 5.55, 5.13],
@@ -647,7 +654,7 @@ const PRESETS = {
   },
   neoaimj: {
     name: 'ネオアイムジャグラーEX', cbigVerified: false, payoutVerified: false,
-    payout: [97.0, 98.0, 99.5, 101.1, 103.3, 105.5],
+    payout: { kouhyo: [97.0, 98.0, 99.5, 101.1, 103.3, 105.5], cherry: null, full: null },
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 33.3, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.02, 6.02, 6.02, 6.02, 6.02, 5.78],
@@ -659,7 +666,7 @@ const PRESETS = {
   },
   happy: {
     name: 'ハッピージャグラーVIII', cbigVerified: false, payoutVerified: false,
-    payout: [97.3, 98.4, 99.9, 101.7, 104.1, 107.5],
+    payout: { kouhyo: [97.3, 98.4, 99.9, 101.7, 104.1, 107.5], cherry: null, full: null },
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 32.8, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.05, 6.04, 6.02, 5.90, 5.81, 5.75],
@@ -671,7 +678,7 @@ const PRESETS = {
   },
   girls: {
     name: 'ジャグラーガールズSS', cbigVerified: false, payoutVerified: false,
-    payout: [97.2, 98.1, 99.5, 101.2, 103.6, 106.3],
+    payout: { kouhyo: [97.2, 98.1, 99.5, 101.2, 103.6, 106.3], cherry: null, full: null },
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 33.3, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [5.98, 5.98, 5.98, 5.98, 5.88, 5.83],
@@ -683,7 +690,7 @@ const PRESETS = {
   },
   mister: {
     name: 'ミスタージャグラー', cbigVerified: false, payoutVerified: false,
-    payout: [97.0, 97.9, 99.0, 100.6, 102.9, 105.7],
+    payout: { kouhyo: [97.0, 97.9, 99.0, 100.6, 102.9, 105.7], cherry: null, full: null },
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 38.08, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [6.29, 6.22, 6.15, 6.09, 6.02, 5.96],
@@ -695,7 +702,7 @@ const PRESETS = {
   },
   ultra: {
     name: 'ウルトラミラクルジャグラー', cbigVerified: false, payoutVerified: false,
-    payout: [96.9, 97.8, 98.9, 100.5, 102.5, 105.2],
+    payout: { kouhyo: [96.9, 97.8, 98.9, 100.5, 102.5, 105.2], cherry: null, full: null },
     big: 240, reg: 96, rep: 7.3, repM: 3, che: 33.3, cheM: 2, budo: 8, game: 3,
     theory: {
       budo: [5.93, 5.93, 5.93, 5.93, 5.87, 5.81],
@@ -988,18 +995,34 @@ function calculate() {
   document.getElementById('result-area').className = 'result-area visible';
 }
 
+// ===== ミニスペック表描画 =====
+let currentPlayStyle = 'kouhyo';
+
 applyPreset();
 
-// ===== ミニスペック表描画 =====
+function setPlayStyle(style) {
+  currentPlayStyle = style;
+  ['spec-mini-single', 'spec-mini-island', 'spec-mini-compare'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el._params) renderMachineSpec(el._params, id);
+  });
+}
+
 function renderMachineSpec(params, targetId) {
   const el = document.getElementById(targetId);
   if (!el) return;
   if (!params || !params.theory) { el.innerHTML = ''; return; }
+  el._params = params;
   const t = params.theory;
+  const po = params.payout || null;
+  const styleData = po ? po[currentPlayStyle] : null;
+  const hasCherry = po && po.cherry !== null;
+  const hasFull   = po && po.full   !== null;
+
   let rows = '';
   for (let i = 0; i < 6; i++) {
     const sum = 1 / (1/t.big[i] + 1/t.reg[i]);
-    const pay = params.payout ? params.payout[i].toFixed(1) + '%' : '—';
+    const pay = styleData ? styleData[i].toFixed(1) + '%' : '—';
     rows += `<tr>
       <td>設${i+1}</td>
       <td>1/${t.big[i].toFixed(1)}</td>
@@ -1009,14 +1032,29 @@ function renderMachineSpec(params, targetId) {
       <td>${pay}</td>
     </tr>`;
   }
-  const note = (params.payoutVerified === false)
+
+  const unsupportedNote = (currentPlayStyle !== 'kouhyo' && !styleData)
+    ? '<p class="mini-spec-note" style="color:#e67e22;">⚠️ この機種はチェリー狙い/フル攻略データ未取得（公表値のみ対応）</p>'
+    : '';
+  const verifiedNote = (params.payoutVerified === false && currentPlayStyle === 'kouhyo')
     ? '<p class="mini-spec-note">※ 機械割は参考値（非公式解析・要確認）</p>'
     : '';
+
   el.innerHTML = `<div class="mini-spec-wrap">
+    <div class="ps-tabs">
+      <button class="ps-tab${currentPlayStyle==='kouhyo'?' active':''}" data-ps="kouhyo">公表値</button>
+      <button class="ps-tab${currentPlayStyle==='cherry'?' active':''}" data-ps="cherry">チェリー狙い</button>
+      <button class="ps-tab${currentPlayStyle==='full'  ?' active':''}" data-ps="full">フル攻略</button>
+    </div>
     <table class="mini-spec-table">
       <thead><tr><th>設定</th><th>BIG</th><th>REG</th><th>合算</th><th>ぶどう</th><th>機械割</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table>${note}</div>`;
+    </table>${unsupportedNote}${verifiedNote}</div>`;
+
+  el.querySelectorAll('.ps-tab[data-ps]').forEach(btn => {
+    btn.addEventListener('click', () => setPlayStyle(btn.dataset.ps));
+    btn.addEventListener('touchend', e => { e.preventDefault(); setPlayStyle(btn.dataset.ps); });
+  });
 }
 
 // ===== モード切り替え =====
