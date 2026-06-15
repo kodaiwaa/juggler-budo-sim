@@ -449,6 +449,7 @@
           <div class="stat-box"><div class="stat-label">差枚合計</div><div class="stat-value" id="isl-total-diff" style="font-size:0.9rem;">—</div></div>
           <div class="stat-box"><div class="stat-label">設定レンジ</div><div class="stat-value" id="isl-setting-range" style="font-size:0.78rem;">—</div></div>
           <div class="stat-box"><div class="stat-label">有効台数</div><div class="stat-value" id="isl-machine-count">—</div></div>
+          <div class="stat-box" style="grid-column: 1 / -1;"><div class="stat-label">信頼度</div><div class="stat-sub" id="isl-conf">—</div></div>
         </div>
         <div class="bar-chart" id="island-bar-chart" style="margin-top:12px;"></div>
       </div>
@@ -840,9 +841,9 @@ function renderBars(probs) {
 }
 
 function confidenceLevel(P) {
-  if (P >= 5000) return { text: '信頼度：高', cls: 'conf-high' };
-  if (P >= 2000) return { text: '信頼度：中', cls: 'conf-mid' };
-  return { text: '信頼度：低（2000G未満）', cls: 'conf-low' };
+  if (P >= 5000) return { text: '信頼度高め（過信は禁物）', cls: 'conf-high' };
+  if (P >= 2000) return { text: '判断材料（まだブレあり）', cls: 'conf-mid' };
+  return { text: '参考値（サンプル不足）', cls: 'conf-low' };
 }
 
 function settingRange(probs) {
@@ -1179,6 +1180,10 @@ function calcIsland() {
   document.getElementById('isl-total-reg').textContent  = totREG > 0 ? (totG/totREG).toFixed(1) : '∞';
   document.getElementById('isl-total-sum').textContent  = (totBIG+totREG) > 0 ? (totG/(totBIG+totREG)).toFixed(1) : '∞';
   document.getElementById('isl-machine-count').textContent = rows.length + '台';
+  const islConf = confidenceLevel(totG);
+  const islConfEl = document.getElementById('isl-conf');
+  islConfEl.textContent = islConf.text;
+  islConfEl.className = 'stat-sub ' + islConf.cls;
 
   const diffEl = document.getElementById('isl-total-diff');
   diffEl.textContent = (totDiff >= 0 ? '+' : '') + totDiff.toLocaleString() + '枚';
@@ -1475,6 +1480,7 @@ function calcCompare() {
     { label: '差枚合計', a: (gA.totDiff>=0?'+':'')+gA.totDiff.toLocaleString()+'枚', b: (gB.totDiff>=0?'+':'')+gB.totDiff.toLocaleString()+'枚', better: gA.totDiff > gB.totDiff ? 'a' : gA.totDiff < gB.totDiff ? 'b' : null },
     { label: '設定レンジ', a: gA.probs ? settingRange(gA.probs) : '—', b: gB.probs ? settingRange(gB.probs) : '—', better: null },
     { label: '台数', a: rowsA.length + '台', b: rowsB.length + '台', better: null },
+    { label: '信頼度', a: confidenceLevel(gA.totG).text, b: confidenceLevel(gB.totG).text, better: null },
   ];
   const cmpRows = document.getElementById('cmp-rows');
   cmpRows.innerHTML = metrics.map(m => `
