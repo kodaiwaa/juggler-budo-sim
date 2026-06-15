@@ -311,10 +311,12 @@
         <div class="stat-box">
           <div class="stat-label">BIG確率</div>
           <div class="stat-value">1/<span id="st-big">—</span></div>
+          <div class="stat-sub" id="st-big-diff"></div>
         </div>
         <div class="stat-box">
           <div class="stat-label">REG確率</div>
           <div class="stat-value">1/<span id="st-reg">—</span></div>
+          <div class="stat-sub" id="st-reg-diff"></div>
         </div>
         <div class="stat-box">
           <div class="stat-label">合算確率</div>
@@ -450,6 +452,8 @@
           <div class="stat-box"><div class="stat-label">設定レンジ</div><div class="stat-value" id="isl-setting-range" style="font-size:0.78rem;">—</div></div>
           <div class="stat-box"><div class="stat-label">有効台数</div><div class="stat-value" id="isl-machine-count">—</div></div>
           <div class="stat-box" style="grid-column: 1 / -1;"><div class="stat-label">信頼度</div><div class="stat-sub" id="isl-conf">—</div></div>
+          <div class="stat-box"><div class="stat-label">BIG（設定4比）</div><div class="stat-sub" id="isl-big-diff">—</div></div>
+          <div class="stat-box"><div class="stat-label">REG（設定4比）</div><div class="stat-sub" id="isl-reg-diff">—</div></div>
         </div>
         <div class="bar-chart" id="island-bar-chart" style="margin-top:12px;"></div>
       </div>
@@ -840,6 +844,16 @@ function renderBars(probs) {
   });
 }
 
+function bonusDiff(P, actual, theoryDenom) {
+  const expected = P / theoryDenom;
+  const diff = actual - expected;
+  let label, cls;
+  if (diff >= 1.0)       { label = `+${diff.toFixed(1)}回（上振れ）`; cls = 'conf-high'; }
+  else if (diff <= -1.0) { label = `${diff.toFixed(1)}回（下振れ）`; cls = 'conf-low'; }
+  else                   { label = `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}回（ほぼ理論値）`; cls = ''; }
+  return { label, cls };
+}
+
 function confidenceLevel(P) {
   if (P >= 5000) return { text: '信頼度高め（過信は禁物）', cls: 'conf-high' };
   if (P >= 2000) return { text: '判断材料（まだブレあり）', cls: 'conf-mid' };
@@ -921,6 +935,21 @@ function calculate() {
     else budoJudge = '低設定寄り';
   }
   document.getElementById('st-budo-judge').textContent = budoJudge;
+
+  // BIG/REG設定4基準差分
+  const bigDiffEl = document.getElementById('st-big-diff');
+  const regDiffEl = document.getElementById('st-reg-diff');
+  if (theory && BIG > 0 && REG > 0) {
+    const bd = bonusDiff(P, BIG, theory.big[3]);
+    const rd = bonusDiff(P, REG, theory.reg[3]);
+    bigDiffEl.textContent = '設定4比: ' + bd.label;
+    bigDiffEl.className = 'stat-sub ' + bd.cls;
+    regDiffEl.textContent = '設定4比: ' + rd.label;
+    regDiffEl.className = 'stat-sub ' + rd.cls;
+  } else {
+    bigDiffEl.textContent = '';
+    regDiffEl.textContent = '';
+  }
 
   // 内訳
   document.getElementById('s1').textContent = r.used.toFixed(0) + '枚';
@@ -1184,6 +1213,17 @@ function calcIsland() {
   const islConfEl = document.getElementById('isl-conf');
   islConfEl.textContent = islConf.text;
   islConfEl.className = 'stat-sub ' + islConf.cls;
+
+  const islBigDiffEl = document.getElementById('isl-big-diff');
+  const islRegDiffEl = document.getElementById('isl-reg-diff');
+  if (params.theory && totBIG > 0 && totREG > 0) {
+    const bd = bonusDiff(totG, totBIG, params.theory.big[3]);
+    const rd = bonusDiff(totG, totREG, params.theory.reg[3]);
+    islBigDiffEl.textContent = bd.label; islBigDiffEl.className = 'stat-sub ' + bd.cls;
+    islRegDiffEl.textContent = rd.label; islRegDiffEl.className = 'stat-sub ' + rd.cls;
+  } else {
+    islBigDiffEl.textContent = '—'; islRegDiffEl.textContent = '—';
+  }
 
   const diffEl = document.getElementById('isl-total-diff');
   diffEl.textContent = (totDiff >= 0 ? '+' : '') + totDiff.toLocaleString() + '枚';
@@ -1481,6 +1521,10 @@ function calcCompare() {
     { label: '設定レンジ', a: gA.probs ? settingRange(gA.probs) : '—', b: gB.probs ? settingRange(gB.probs) : '—', better: null },
     { label: '台数', a: rowsA.length + '台', b: rowsB.length + '台', better: null },
     { label: '信頼度', a: confidenceLevel(gA.totG).text, b: confidenceLevel(gB.totG).text, better: null },
+    ...(params.theory ? [
+      { label: 'BIG設定4比', a: bonusDiff(gA.totG, gA.totBIG, params.theory.big[3]).label, b: bonusDiff(gB.totG, gB.totBIG, params.theory.big[3]).label, better: null },
+      { label: 'REG設定4比', a: bonusDiff(gA.totG, gA.totREG, params.theory.reg[3]).label, b: bonusDiff(gB.totG, gB.totREG, params.theory.reg[3]).label, better: null },
+    ] : []),
   ];
   const cmpRows = document.getElementById('cmp-rows');
   cmpRows.innerHTML = metrics.map(m => `
