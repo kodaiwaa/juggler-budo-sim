@@ -1081,6 +1081,9 @@ function renderMachineSpec(params, targetId) {
   const verifiedNote = (params.payoutVerified === false && currentPlayStyle === 'kouhyo')
     ? '<p class="mini-spec-note">※ 機械割は参考値（非公式解析・要確認）</p>'
     : '';
+  const cherryNote = (currentPlayStyle === 'cherry' || currentPlayStyle === 'full')
+    ? '<p class="mini-spec-note">※ チェリー狙い・フル攻略の機械割は独自調査値を含む参考値です。</p>'
+    : '';
 
   el.innerHTML = `<div class="mini-spec-wrap">
     <div class="ps-tabs">
@@ -1091,7 +1094,7 @@ function renderMachineSpec(params, targetId) {
     <table class="mini-spec-table">
       <thead><tr><th>設定</th><th>BIG</th><th>REG</th><th>合算</th><th>ぶどう</th><th>機械割</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table>${unsupportedNote}${verifiedNote}</div>`;
+    </table>${unsupportedNote}${verifiedNote}${cherryNote}</div>`;
 
   el.querySelectorAll('.ps-tab[data-ps]').forEach(btn => {
     btn.addEventListener('click', () => setPlayStyle(btn.dataset.ps));
