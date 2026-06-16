@@ -591,7 +591,7 @@
         </div>
       </div>
 
-      <button class="btn btn-primary" style="margin-top:4px;" onclick="saveCmpRecord()">💾 比較結果を保存</button>
+      <button id="cmp-save-btn" class="btn btn-primary" style="margin-top:4px;">💾 比較結果を保存</button>
     </div>
 
     <!-- 履歴（島モードと共用） -->
@@ -1606,7 +1606,7 @@ function calcCompare() {
 }
 
 function saveCmpRecord() {
-  if (!window._lastCmpData) return;
+  if (!window._lastCmpData) { showToast('先にA/B比較を実行してください'); return; }
   const history = loadHistory();
   const now = new Date();
   const jst = new Date(now.getTime() + 9 * 3600 * 1000);
@@ -1629,6 +1629,15 @@ function saveCmpRecord() {
   renderHistory();
   renderCmpHistory();
   showToast('💾 保存しました');
+  const btn = document.getElementById('cmp-save-btn');
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = '✅ 保存しました';
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 1800);
+  }
+  const histEl = document.getElementById('cmp-history-list');
+  if (histEl) histEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function renderCmpHistory() {
@@ -1679,6 +1688,11 @@ function exportCSV() {
   applyCmpPreset();
   renderHistory();
   renderCmpHistory();
+  const cmpSaveBtn = document.getElementById('cmp-save-btn');
+  if (cmpSaveBtn) {
+    cmpSaveBtn.addEventListener('click', saveCmpRecord);
+    cmpSaveBtn.addEventListener('touchend', e => { e.preventDefault(); saveCmpRecord(); });
+  }
 })();
 </script>
 
