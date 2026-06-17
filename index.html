@@ -341,21 +341,21 @@
     <div class="grid4">
       <div>
         <label>総G数 <span class="hint" style="font-size:0.72rem;">(通常+B込)</span></label>
-        <input type="number" inputmode="numeric" id="inp-p" value="1000" min="1">
+        <input type="number" inputmode="numeric" id="inp-p" placeholder="例: 3000" min="1">
       </div>
       <div>
         <label>BIG回数</label>
-        <input type="number" inputmode="numeric" id="inp-big" value="5" min="0">
+        <input type="number" inputmode="numeric" id="inp-big" placeholder="例: 12" min="0">
       </div>
       <div>
         <label>REG回数</label>
-        <input type="number" inputmode="numeric" id="inp-reg" value="3" min="0">
+        <input type="number" inputmode="numeric" id="inp-reg" placeholder="例: 15" min="0">
       </div>
       <div>
         <label>差枚数</label>
         <div class="diff-wrap">
           <button class="diff-sign-btn plus" id="diff-sign-btn" onclick="toggleDiffSign('inp-d','diff-sign-btn')">＋</button>
-          <input type="text" inputmode="numeric" id="inp-d" value="100">
+          <input type="text" inputmode="numeric" id="inp-d" placeholder="0">
         </div>
       </div>
     </div>
