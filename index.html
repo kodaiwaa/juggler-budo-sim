@@ -2,31 +2,45 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a0f">
 <title>ジャグラー ぶどう確率シミュレータ v2</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #12121f; color: #d8d8d8; min-height: 100vh; }
-  .container { max-width: 760px; margin: 0 auto; padding: 20px 16px 40px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #d8d8d8; min-height: 100vh; overscroll-behavior-y: contain; -webkit-text-size-adjust: 100%; }
+  .container { max-width: 760px; margin: 0 auto; padding: calc(20px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px)) calc(40px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px)); }
   h1 { text-align: center; color: #f0c040; font-size: 1.5rem; margin-bottom: 6px; letter-spacing: 1px; }
   .subtitle { text-align: center; font-size: 0.78rem; color: #666; margin-bottom: 22px; }
 
-  .card { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+  .card { background: #0f0f16; border: 1px solid #1e1e2a; border-radius: 12px; padding: 18px; margin-bottom: 14px; }
   h2 { color: #f0c040; font-size: 0.95rem; margin-bottom: 12px; }
 
   label { display: block; font-size: 0.82rem; color: #bbb; margin-bottom: 3px; margin-top: 10px; }
   label .hint { font-size: 0.74rem; color: #666; font-weight: 400; }
-  input[type="number"], select {
-    width: 100%; padding: 9px 10px; background: #0d1220; border: 1px solid #333;
-    border-radius: 8px; color: #f0f0f0; font-size: 0.95rem;
+  input[type="number"], input[type="text"], select {
+    width: 100%; padding: 9px 10px; background: #09090f; border: 1px solid #333;
+    border-radius: 8px; color: #f0f0f0; font-size: 1rem;
+  }
+  input[type="number"], input[type="text"] {
+    -webkit-appearance: none; appearance: none;
+  }
+  select {
+    -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 32px;
   }
   input:focus, select:focus { outline: none; border-color: #f0c040; }
 
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .grid4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+  .grid4 { display: grid; grid-template-columns: 1.2fr 0.85fr 0.85fr 0.9fr; gap: 8px; }
 
-  .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-top: 12px; transition: opacity .15s; }
-  .btn-primary { background: #f0c040; color: #12121f; }
+  .btn { width: 100%; padding: 10px 12px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-top: 12px; transition: opacity .15s; }
+  .btn-primary { background: #e8b820; color: #0a0a0f; box-shadow: 0 2px 10px rgba(232,184,32,0.18); }
   .btn-primary:hover { opacity: .85; }
 
   /* 結果 */
@@ -34,10 +48,10 @@
   .result-area.visible { display: block; }
 
   /* 判定カード */
-  .verdict-card { background: #0d1220; border: 2px solid #f0c040; border-radius: 14px; padding: 20px; margin-bottom: 14px; }
+  .verdict-card { background: #09090f; border: 2px solid #f0c040; border-radius: 14px; padding: 20px; margin-bottom: 14px; box-shadow: 0 0 28px rgba(240,192,64,0.14), 0 4px 20px rgba(0,0,0,0.7); }
   .verdict-main { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
   .verdict-big { flex: 0 0 auto; }
-  .verdict-setting { font-size: 4rem; font-weight: 900; color: #f0c040; line-height: 1; }
+  .verdict-setting { font-size: 5rem; font-weight: 900; color: #f0c040; line-height: 1; }
   .verdict-label { font-size: 0.75rem; color: #888; }
   .verdict-meta { flex: 1; }
   .verdict-range { font-size: 1rem; font-weight: 700; color: #d8d8d8; margin-bottom: 4px; }
@@ -45,7 +59,7 @@
   .conf-low  { background: #3a2a2a; color: #ff8a8a; }
   .conf-mid  { background: #3a3a1a; color: #ffd060; }
   .conf-high { background: #1a3a2a; color: #6aff6a; }
-  .budo-counter-wrap { margin-top:12px; border-top:1px solid #2a2a4a; padding-top:12px; }
+  .budo-counter-wrap { margin-top:12px; border-top:1px solid #1e1e2a; padding-top:12px; }
   .budo-counter-label { font-size:0.82rem; color:#888; margin-bottom:8px; }
   .budo-counter-row { display:flex; align-items:center; gap:10px; }
   .budo-count-btn { flex:0 0 auto; padding:14px 22px; background:#1e2a10; border:2px solid #6aff6a; border-radius:10px; color:#6aff6a; font-size:1.1rem; font-weight:700; cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:rgba(106,255,106,.2); user-select:none; -webkit-user-select:none; }
@@ -57,8 +71,8 @@
   .bar-chart { }
   .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 0.82rem; }
   .bar-label { width: 36px; text-align: right; color: #aaa; flex-shrink: 0; }
-  .bar-track { flex: 1; background: #1e1e3a; border-radius: 4px; height: 18px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 4px; transition: width .5s ease; display: flex; align-items: center; padding-left: 6px; font-size: 0.75rem; font-weight: 700; color: #12121f; }
+  .bar-track { flex: 1; background: #14141e; border-radius: 4px; height: 18px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width .5s ease; display: flex; align-items: center; padding-left: 6px; font-size: 0.75rem; font-weight: 700; color: #0a0a0f; }
   .bar-row.top .bar-fill { background: #f0c040; }
   .bar-row.high .bar-fill { background: #f0a030; }
   .bar-row.mid .bar-fill { background: #6080c0; }
@@ -67,23 +81,23 @@
 
   /* 根拠 stats */
   .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 0; }
-  @media (max-width: 400px) {
+  @media (max-width: 600px) {
     .grid4 { grid-template-columns: 1fr 1fr; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
     .island-result-grid { grid-template-columns: 1fr 1fr; }
     .spec-table { font-size: 0.72rem; }
     .spec-table th, .spec-table td { padding: 5px 3px; }
   }
-  .stat-box { background: #0d1220; border: 1px solid #2a2a4a; border-radius: 8px; padding: 10px; text-align: center; }
+  .stat-box { background: #09090f; border: 1px solid #1e1e2a; border-radius: 8px; padding: 10px; text-align: center; }
   .stat-box .stat-label { font-size: 0.72rem; color: #888; margin-bottom: 4px; }
-  .stat-box .stat-value { font-size: 1.1rem; font-weight: 700; color: #f0c040; }
+  .stat-box .stat-value { font-size: 1.3rem; font-weight: 800; color: #f0c040; }
   .stat-box .stat-sub { font-size: 0.7rem; color: #666; margin-top: 2px; }
 
   /* 内訳（折り畳み） */
   details { margin-top: 10px; }
   summary { cursor: pointer; font-size: 0.82rem; color: #888; padding: 6px 0; user-select: none; }
   summary:hover { color: #bbb; }
-  .step { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px solid #1e2a3e; }
+  .step { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 4px 0; border-bottom: 1px solid #16162a; }
   .step-label { color: #999; }
   .step-val { font-family: monospace; }
   .step-val.neg { color: #ff8a8a; }
@@ -97,29 +111,29 @@
   /* プリセット情報 */
   .preset-specs { display: none; margin-top: 10px; }
   .preset-specs.visible { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-  .spec-item { background: #0d1220; border: 1px solid #2a2a4a; border-radius: 6px; padding: 6px 8px; font-size: 0.75rem; text-align: center; }
+  .spec-item { background: #09090f; border: 1px solid #1e1e2a; border-radius: 6px; padding: 6px 8px; font-size: 0.75rem; text-align: center; }
   .spec-item .spec-k { color: #888; display: block; }
   .spec-item .spec-v { color: #d8d8d8; font-weight: 600; }
 
   /* スペックテーブル */
   .spec-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-  .spec-table th { background: #0d1220; color: #888; padding: 7px 8px; text-align: center; font-weight: 500; }
-  .spec-table td { padding: 6px 8px; text-align: center; border-bottom: 1px solid #1e2a3e; }
+  .spec-table th { background: #09090f; color: #888; padding: 7px 8px; text-align: center; font-weight: 500; }
+  .spec-table td { padding: 6px 8px; text-align: center; border-bottom: 1px solid #16162a; }
   .spec-table tr.spec-highlight td { color: #f0c040; font-weight: 700; background: #1e2a10; }
   .spec-table td.observed { color: #6aff6a; font-weight: 700; }
 
   /* ===== ミニスペック表（機械割・BIG/REG/合算/ぶどう） ===== */
-  .mini-spec-wrap { margin-top: 14px; border-top: 1px solid #2a2a4a; padding-top: 12px; }
+  .mini-spec-wrap { margin-top: 14px; border-top: 1px solid #1e1e2a; padding-top: 12px; }
   .mini-spec-table { width: 100%; border-collapse: collapse; }
-  .mini-spec-table th { background: #0d1220; color: #666; padding: 5px 2px; text-align: center; font-weight: 500; white-space: nowrap; font-size: 0.68rem; }
-  .mini-spec-table td { padding: 4px 2px; text-align: center; border-bottom: 1px solid #1e2a3e; white-space: nowrap; font-size: 0.70rem; }
+  .mini-spec-table th { background: #09090f; color: #666; padding: 5px 2px; text-align: center; font-weight: 500; white-space: nowrap; font-size: 0.68rem; }
+  .mini-spec-table td { padding: 4px 2px; text-align: center; border-bottom: 1px solid #16162a; white-space: nowrap; font-size: 0.70rem; }
   .mini-spec-note { font-size: 0.68rem; color: #555; margin-top: 5px; line-height: 1.5; }
   .ps-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
-  .ps-tab { flex: 1; padding: 5px 2px; border: 1px solid #2a2a4a; border-radius: 6px; background: #1a1a2e; color: #666; cursor: pointer; font-size: 0.68rem; font-weight: 600; text-align: center; touch-action: manipulation; -webkit-tap-highlight-color: rgba(240,192,64,.2); user-select: none; -webkit-user-select: none; }
+  .ps-tab { flex: 1; padding: 5px 2px; border: 1px solid #1e1e2a; border-radius: 6px; background: #0f0f16; color: #666; cursor: pointer; font-size: 0.68rem; font-weight: 600; text-align: center; touch-action: manipulation; -webkit-tap-highlight-color: rgba(240,192,64,.2); user-select: none; -webkit-user-select: none; }
   .ps-tab.active { border-color: #f0c040; color: #f0c040; background: #1e2a10; }
 
   /* 注記 */
-  .notice { font-size: 0.74rem; color: #555; line-height: 1.6; padding: 10px; background: #0d1220; border-radius: 8px; margin-top: 12px; }
+  .notice { font-size: 0.74rem; color: #555; line-height: 1.6; padding: 10px; background: #09090f; border-radius: 8px; margin-top: 12px; }
 
   /* カスタムパラメータ */
   .custom-params { display: none; margin-top: 12px; }
@@ -127,22 +141,28 @@
 
   /* ===== モード切り替えタブ ===== */
   .mode-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-  .mode-tab { flex: 1; padding: 10px; border: 2px solid #2a2a4a; border-radius: 10px; background: #1a1a2e; color: #888; cursor: pointer; font-size: 0.88rem; font-weight: 600; text-align: center; transition: all .15s; min-height: 44px; touch-action: manipulation; -webkit-tap-highlight-color: rgba(240,192,64,.2); user-select: none; -webkit-user-select: none; }
+  .mode-tab { flex: 1; padding: 10px; border: 2px solid #1e1e2a; border-radius: 10px; background: #0f0f16; color: #888; cursor: pointer; font-size: 0.88rem; font-weight: 600; text-align: center; transition: all .15s; min-height: 44px; touch-action: manipulation; -webkit-tap-highlight-color: rgba(240,192,64,.2); user-select: none; -webkit-user-select: none; }
   .mode-tab.active { border-color: #f0c040; color: #f0c040; background: #1e2010; }
   .mode-section { display: none; }
   .mode-section.active { display: block; }
 
   /* ===== 島モード ===== */
-  .btn-secondary { background: #2a2a4a; color: #d8d8d8; width: auto; padding: 8px 16px; margin-top: 10px; display: inline-block; }
+  .btn-secondary { background: #1e1e2a; color: #d8d8d8; width: auto; padding: 8px 16px; margin-top: 10px; display: inline-block; }
+  .btn-save { background: #0a0a0f; color: #c8a020; border: 1px solid #c8a020; font-size: 0.88rem; font-weight: 600; box-shadow: none; }
+  .btn-save:hover { background: #161610; opacity: 1; }
   .btn-secondary:hover { opacity: .8; }
   .btn-danger { background: #3a1a1a; color: #ff8a8a; width: auto; padding: 8px 16px; margin-top: 8px; display: inline-block; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
 
   .island-table-wrap { overflow-x: auto; }
   .island-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 600px; }
-  .island-table th { background: #0d1220; color: #888; padding: 6px 6px; text-align: center; font-size: 0.74rem; white-space: nowrap; }
-  .island-table td { padding: 4px 3px; border-bottom: 1px solid #1a1a3a; }
-  .island-table td input[type="number"] { width: 100%; padding: 5px 5px; font-size: 0.8rem; background: #0d1220; border: 1px solid #333; border-radius: 6px; color: #f0f0f0; min-width: 0; }
-  .island-table td input[type="text"] { width: 100%; padding: 5px 5px; font-size: 0.8rem; background: #0d1220; border: 1px solid #333; border-radius: 6px; color: #f0f0f0; }
+  .island-table th { background: #09090f; color: #888; padding: 6px 6px; text-align: center; font-size: 0.74rem; white-space: nowrap; }
+  .island-table td { padding: 4px 3px; border-bottom: 1px solid #141428; }
+  .island-table td input[type="number"] { width: 100%; padding: 5px 5px; font-size: 0.8rem; background: #09090f; border: 1px solid #333; border-radius: 6px; color: #f0f0f0; min-width: 0; }
+  .group-card-a .island-table td input[type="number"],
+  .group-card-b .island-table td input[type="number"] { max-width: 48px; padding: 4px 3px; }
+  .group-card-a .island-table td input[type="text"],
+  .group-card-b .island-table td input[type="text"] { max-width: 48px; padding: 4px 3px; }
+  .island-table td input[type="text"] { width: 100%; padding: 5px 5px; font-size: 0.8rem; background: #09090f; border: 1px solid #333; border-radius: 6px; color: #f0f0f0; }
   .island-table .remove-btn { background: #3a1a1a; border: none; color: #ff8a8a; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.78rem; white-space: nowrap; }
   .island-table .remove-btn:hover { background: #5a2020; }
   .num-col { width: 70px; }
@@ -154,19 +174,19 @@
   .island-mid    { background: #2a2a1a; border: 2px solid #ffd060; color: #ffd060; }
   .island-weak   { background: #2a1a1a; border: 2px solid #ff8a8a; color: #ff8a8a; }
 
-  .machine-result-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid #1e2a3e; font-size: 0.82rem; flex-wrap: wrap; }
+  .machine-result-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid #16162a; font-size: 0.82rem; flex-wrap: wrap; }
   .machine-result-row .m-label { min-width: 40px; color: #aaa; font-weight: 600; }
   .machine-result-row .m-budo  { color: #f0c040; font-family: monospace; min-width: 60px; }
   .machine-result-row .m-bonus { color: #888; font-size: 0.75rem; min-width: 80px; }
   .badge { font-size: 0.74rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
   .badge-strong { background: #1a3a1a; color: #6aff6a; }
-  .badge-avg    { background: #1e2a3e; color: #888; }
+  .badge-avg    { background: #16162a; color: #888; }
   .badge-weak   { background: #3a1a1a; color: #ff8a8a; }
 
   /* 履歴 */
-  .history-list { max-height: 360px; overflow-y: auto; }
-  .history-item { padding: 10px 12px; border-bottom: 1px solid #1e2a3e; cursor: pointer; }
-  .history-item:hover { background: #1a1a3a; }
+  .history-list { max-height: 360px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .history-item { padding: 10px 12px; border-bottom: 1px solid #16162a; cursor: pointer; }
+  .history-item:hover { background: #141428; }
   .history-date { color: #888; font-size: 0.74rem; }
   .history-title { color: #d8d8d8; font-weight: 600; font-size: 0.88rem; }
   .history-summary { color: #888; font-size: 0.75rem; margin-top: 3px; }
@@ -175,31 +195,66 @@
   .csv-btn:hover { background: #2a3a2a; }
 
   /* ===== 比較モード ===== */
-  .group-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 600px) { .group-cols { grid-template-columns: 1fr; } }
+  .group-cols { display: flex; flex-direction: column; gap: 12px; }
   .group-card-a { border-left: 4px solid #4a9eff; }
+  .group-card-a .island-table, .group-card-b .island-table,
+  .group-card-c .island-table, .group-card-d .island-table { min-width: 0; }
   .group-card-b { border-left: 4px solid #ff7a4a; }
+  .group-card-c { border-left: 4px solid #6aff6a; }
+  .group-card-d { border-left: 4px solid #f0c040; }
   .group-label-a { color: #4a9eff; }
+  .group-label-c { color: #6aff6a; }
+  .group-label-d { color: #f0c040; }
+  .winner-c { background: #0a1a0a; border: 2px solid #6aff6a; color: #6aff6a; }
+  .winner-d { background: #1a1400; border: 2px solid #f0c040; color: #f0c040; }
+  .add-group-btn { width: 100%; padding: 10px; border: 2px dashed #1e1e2a; border-radius: 10px; background: #0f0f16; color: #888; cursor: pointer; font-size: 0.88rem; margin-bottom: 12px; transition: all .15s; }
+  .add-group-btn:hover { border-color: #888; color: #d8d8d8; }
   .group-label-b { color: #ff7a4a; }
 
   .compare-winner { padding: 16px 20px; border-radius: 12px; text-align: center; margin-bottom: 12px; }
   .winner-a { background: #0a1a2a; border: 2px solid #4a9eff; color: #4a9eff; }
   .winner-b { background: #1a0a00; border: 2px solid #ff7a4a; color: #ff7a4a; }
-  .winner-tie { background: #1a1a2e; border: 2px solid #888; color: #888; }
+  .winner-tie { background: #0f0f16; border: 2px solid #888; color: #888; }
   .compare-winner .winner-big { font-size: 1.3rem; font-weight: 900; }
   .compare-winner .winner-sub { font-size: 0.8rem; opacity: 0.8; margin-top: 4px; }
 
-  .compare-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: center; margin-bottom: 6px; }
-  .cmp-a { text-align: right; font-weight: 700; }
-  .cmp-b { text-align: left;  font-weight: 700; }
+  .compare-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 4px; align-items: center; margin-bottom: 4px; font-size: 0.78rem; }
+  .cmp-a { text-align: right; font-weight: 600; }
+  .cmp-b { text-align: left;  font-weight: 600; }
+  .compare-grid .verdict-confidence { font-size: 0.66rem; padding: 2px 5px; white-space: nowrap; }
   .cmp-label { text-align: center; font-size: 0.72rem; color: #666; padding: 0 8px; white-space: nowrap; }
   .cmp-better-a { color: #4a9eff; }
   .cmp-better-b { color: #ff7a4a; }
   .cmp-equal { color: #888; }
 
-  .group-stat-row { display: flex; justify-content: space-between; padding: 5px 8px; border-bottom: 1px solid #1e2a3e; font-size: 0.82rem; }
+  .group-stat-row { display: flex; justify-content: space-between; padding: 5px 8px; border-bottom: 1px solid #16162a; font-size: 0.82rem; }
   .group-stat-label { color: #888; }
   .group-stat-val { font-weight: 600; color: #d8d8d8; }
+
+  /* 子役カウンター */
+  .yakucount-wrap { margin-top: 14px; border-top: 1px solid #1e1e2a; padding-top: 12px; }
+  .yakucount-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .yakucount-title { font-size: 0.85rem; color: #aaa; font-weight: 600; }
+  .yakucount-mode-btns { display: flex; gap: 4px; }
+  .ymode-btn { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; border: 1px solid #333; background: none; color: #666; cursor: pointer; transition: all .15s; }
+  .ymode-btn.active { background: #f0c040; color: #0a0a0f; border-color: #f0c040; font-weight: 700; }
+  .yakucount-body { margin-top: 10px; }
+  .yaku-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #16162a; }
+  .yaku-row:last-of-type { border-bottom: none; }
+  .yaku-name { font-size: 0.82rem; color: #bbb; min-width: 90px; }
+  .yaku-btn { flex: 0 0 auto; padding: 10px 18px; background: #1e2a10; border: 2px solid #6aff6a; border-radius: 10px; color: #6aff6a; font-size: 1rem; font-weight: 700; cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+  .yaku-val { font-size: 1.2rem; font-weight: 700; color: #f0c040; min-width: 52px; }
+  .yaku-dec-btn { flex: 0 0 auto; padding: 10px 14px; background: #2a1010; border: 2px solid #ff6a6a; border-radius: 10px; color: #ff6a6a; font-size: 1rem; font-weight: 700; cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+  .yaku-reset { font-size: 0.72rem; color: #555; background: none; border: 1px solid #333; border-radius: 6px; padding: 3px 8px; cursor: pointer; touch-action: manipulation; margin-left: auto; }
+  .yaku-reset-all { margin-top: 8px; font-size: 0.75rem; color: #888; background: none; border: 1px solid #333; border-radius: 6px; padding: 4px 12px; cursor: pointer; width: 100%; }
+  .diff-wrap { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .diff-wrap input { flex: 1; margin-top: 0; }
+  .diff-sign-btn { flex: 0 0 auto; padding: 9px 10px; border-radius: 8px; border: 2px solid; font-size: 0.95rem; font-weight: 700; cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none; min-width: 40px; text-align: center; }
+  .diff-sign-btn.plus  { background: #111a0a; border-color: #3d7a3d; color: #5aaa5a; }
+  .diff-sign-btn.minus { background: #1a0a0a; border-color: #7a3d3d; color: #aa5a5a; }
+  .island-table .diff-wrap { display: flex; align-items: stretch; gap: 0; }
+  .island-table .diff-sign-btn { flex: 0 0 22px; min-width: 0; padding: 0; border-radius: 4px 0 0 4px; border-right: none; border-width: 1px; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; }
+  .island-table .diff-wrap input { flex: 1; min-width: 0; border-radius: 0 4px 4px 0 !important; border-left: none !important; padding: 5px 3px !important; }
 </style>
 </head>
 <body>
@@ -219,20 +274,41 @@
 
   <!-- 機種プリセット -->
   <div class="card">
-    <h2>機種選択</h2>
-    <label>機種</label>
-    <select id="preset" onchange="applyPreset()">
-      <option value="myj">マイジャグラーV</option>
-      <option value="aimj">アイムジャグラーEX</option>
-      <option value="neoaimj">ネオアイムジャグラーEX</option>
-      <option value="funky">ファンキージャグラー2</option>
-      <option value="gogo">ゴーゴージャグラー3</option>
-      <option value="happy">ハッピージャグラーVIII</option>
-      <option value="girls">ジャグラーガールズSS</option>
-      <option value="mister">ミスタージャグラー</option>
-      <option value="ultra">ウルトラミラクルジャグラー</option>
-      <option value="custom">カスタム</option>
-    </select>
+    <h2>機種 / セッション情報</h2>
+    <div class="grid2" style="margin-bottom:10px;">
+      <div>
+        <label>店舗名</label>
+        <input type="text" id="single-store" list="dl-store" placeholder="例: ○○パーラー" style="background:#09090f;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
+        <datalist id="dl-store"></datalist>
+      </div>
+      <div>
+        <label>コーナー名 <span class="hint">（任意）</span></label>
+        <input type="text" id="single-corner" list="dl-corner" placeholder="例: マイジャグ島A" style="background:#09090f;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
+        <datalist id="dl-corner"></datalist>
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <label>機種</label>
+        <select id="preset" onchange="applyPreset()">
+          <option value="myj">マイジャグラーV</option>
+          <option value="aimj">アイムジャグラーEX</option>
+          <option value="neoaimj">ネオアイムジャグラーEX</option>
+          <option value="funky">ファンキージャグラー2</option>
+          <option value="gogo">ゴーゴージャグラー3</option>
+          <option value="happy">ハッピージャグラーVIII</option>
+          <option value="girls">ジャグラーガールズSS</option>
+          <option value="mister">ミスタージャグラー</option>
+          <option value="ultra">ウルトラミラクルジャグラー</option>
+          <option value="custom">カスタム</option>
+        </select>
+      </div>
+      <div>
+        <label>メモ <span class="hint">（任意）</span></label>
+        <input type="text" id="single-memo" list="dl-memo" placeholder="例: 土曜・イベント日" style="background:#09090f;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
+        <datalist id="dl-memo"></datalist>
+      </div>
+    </div>
 
     <div class="preset-specs visible" id="preset-specs">
       <div class="spec-item"><span class="spec-k">BIG獲得</span><span class="spec-v" id="ps-big">240枚</span></div>
@@ -245,12 +321,12 @@
 
     <div class="custom-params" id="custom-params">
       <div class="grid2">
-        <div><label>BIG獲得枚数</label><input type="number" id="p-big" value="240" step="1"></div>
-        <div><label>REG獲得枚数</label><input type="number" id="p-reg" value="96" step="1"></div>
-        <div><label>リプレイ確率分母</label><input type="number" id="p-rep" value="7.3" step="0.01"></div>
-        <div><label>チェリー確率分母</label><input type="number" id="p-che" value="38.08" step="0.01"></div>
-        <div><label>チェリー払出枚数</label><input type="number" id="p-cheM" value="2" step="1"></div>
-        <div><label>ぶどう払出枚数</label><input type="number" id="p-budo" value="8" step="1"></div>
+        <div><label>BIG獲得枚数</label><input type="number" inputmode="numeric" id="p-big" value="240" step="1"></div>
+        <div><label>REG獲得枚数</label><input type="number" inputmode="numeric" id="p-reg" value="96" step="1"></div>
+        <div><label>リプレイ確率分母</label><input type="number" inputmode="numeric" id="p-rep" value="7.3" step="0.01"></div>
+        <div><label>チェリー確率分母</label><input type="number" inputmode="numeric" id="p-che" value="38.08" step="0.01"></div>
+        <div><label>チェリー払出枚数</label><input type="number" inputmode="numeric" id="p-cheM" value="2" step="1"></div>
+        <div><label>ぶどう払出枚数</label><input type="number" inputmode="numeric" id="p-budo" value="8" step="1"></div>
       </div>
     </div>
   </div>
@@ -258,47 +334,99 @@
   <!-- データ入力 -->
   <div class="card">
     <h2>台データ入力</h2>
+    <div style="margin-bottom:10px;">
+      <label>台番号 <span class="hint">（任意）</span></label>
+      <input type="text" inputmode="numeric" id="inp-machine-num" placeholder="例: 301" style="width:100%;max-width:160px;display:block;margin-top:4px;">
+    </div>
     <div class="grid4">
       <div>
-        <label>総ゲーム数 <span class="hint">（通常+ボーナス中）</span></label>
-        <input type="number" id="inp-p" value="1000" min="1">
+        <label>総G数 <span class="hint" style="font-size:0.72rem;">(通常+B込)</span></label>
+        <input type="number" inputmode="numeric" id="inp-p" value="1000" min="1">
       </div>
       <div>
         <label>BIG回数</label>
-        <input type="number" id="inp-big" value="5" min="0">
+        <input type="number" inputmode="numeric" id="inp-big" value="5" min="0">
       </div>
       <div>
         <label>REG回数</label>
-        <input type="number" id="inp-reg" value="3" min="0">
+        <input type="number" inputmode="numeric" id="inp-reg" value="3" min="0">
       </div>
       <div>
-        <label>差枚数 <span class="hint">（現在の差枚）</span></label>
-        <input type="text" inputmode="decimal" id="inp-d" value="100">
+        <label>差枚数</label>
+        <div class="diff-wrap">
+          <button class="diff-sign-btn plus" id="diff-sign-btn" onclick="toggleDiffSign('inp-d','diff-sign-btn')">＋</button>
+          <input type="text" inputmode="numeric" id="inp-d" value="100">
+        </div>
       </div>
     </div>
-    <div style="margin-top:12px;">
-      <details>
-        <summary style="cursor:pointer; font-size:0.82rem; color:#888; padding:4px 0;">チェリー重複を入力する（任意・設定差大）</summary>
-        <div class="grid2" style="margin-top:10px;">
-          <div>
-            <label>チェリー重複BIG回数 <span class="hint">（左チェリー＋BIG同時）</span></label>
-            <input type="number" id="inp-cbig" value="" min="0" placeholder="未カウントなら空欄">
+    <!-- 子役カウンター -->
+    <div class="yakucount-wrap" id="yakucount-wrap">
+      <!-- ヘッダー（常時表示） -->
+      <div class="yakucount-header">
+        <span class="yakucount-title">🎰 子役カウンター</span>
+        <div class="yakucount-mode-btns">
+          <button class="ymode-btn active" data-mode="none">数えない</button>
+          <button class="ymode-btn" data-mode="budo">ぶどうのみ</button>
+          <button class="ymode-btn" data-mode="full">全部数える</button>
+        </div>
+      </div>
+
+      <!-- カウンターエリア（モードによって表示切替） -->
+      <div class="yakucount-body" id="yakucount-body" style="display:none;">
+        <!-- ぶどうのみ・全部 共通 -->
+        <div class="yaku-row" id="yrow-budo">
+          <span class="yaku-name">🍇 ぶどう</span>
+          <button class="yaku-btn" id="budo-count-btn">+1</button>
+          <button class="yaku-dec-btn" data-dec="budo">-1</button>
+          <span class="yaku-val"><span id="budo-count-val">0</span> 回</span>
+          <input type="number" inputmode="numeric" id="inp-budo" style="display:none;" min="0">
+          <button class="yaku-reset" data-target="budo">R</button>
+        </div>
+        <!-- 全部モードのみ -->
+        <div id="yaku-full-rows" style="display:none;">
+          <div class="yaku-row" id="yrow-cherry">
+            <span class="yaku-name">🍒 チェリー</span>
+            <button class="yaku-btn" id="cherry-count-btn">+1</button>
+            <button class="yaku-dec-btn" data-dec="cherry">-1</button>
+            <span class="yaku-val"><span id="cherry-count-val">0</span> 回</span>
+            <input type="number" inputmode="numeric" id="inp-cherry" style="display:none;" min="0">
+            <button class="yaku-reset" data-target="cherry">R</button>
           </div>
-          <div>
-            <label>チェリー重複REG回数 <span class="hint">（左チェリー＋REG同時）</span></label>
-            <input type="number" id="inp-creg" value="" min="0" placeholder="未カウントなら空欄">
+          <div class="yaku-row" id="yrow-solo-big">
+            <span class="yaku-name">⭐ 単独BIG</span>
+            <button class="yaku-btn" id="solo-big-count-btn">+1</button>
+            <button class="yaku-dec-btn" data-dec="solo-big">-1</button>
+            <span class="yaku-val"><span id="solo-big-count-val">0</span> 回</span>
+            <input type="number" inputmode="numeric" id="inp-solo-big" style="display:none;" min="0">
+            <button class="yaku-reset" data-target="solo-big">R</button>
+          </div>
+          <div class="yaku-row" id="yrow-solo-reg">
+            <span class="yaku-name">⭐ 単独REG</span>
+            <button class="yaku-btn" id="solo-reg-count-btn">+1</button>
+            <button class="yaku-dec-btn" data-dec="solo-reg">-1</button>
+            <span class="yaku-val"><span id="solo-reg-count-val">0</span> 回</span>
+            <input type="number" inputmode="numeric" id="inp-solo-reg" style="display:none;" min="0">
+            <button class="yaku-reset" data-target="solo-reg">R</button>
+          </div>
+          <div class="yaku-row" id="yrow-cbig">
+            <span class="yaku-name">🔴 チェリーBIG</span>
+            <button class="yaku-btn" id="cbig-count-btn">+1</button>
+            <button class="yaku-dec-btn" data-dec="cbig">-1</button>
+            <span class="yaku-val"><span id="cbig-count-val">0</span> 回</span>
+            <input type="number" inputmode="numeric" id="inp-cbig" style="display:none;" min="0">
+            <button class="yaku-reset" data-target="cbig">R</button>
+          </div>
+          <div class="yaku-row" id="yrow-creg">
+            <span class="yaku-name">🔴 チェリーREG</span>
+            <button class="yaku-btn" id="creg-count-btn">+1</button>
+            <button class="yaku-dec-btn" data-dec="creg">-1</button>
+            <span class="yaku-val"><span id="creg-count-val">0</span> 回</span>
+            <input type="number" inputmode="numeric" id="inp-creg" style="display:none;" min="0">
+            <button class="yaku-reset" data-target="creg">R</button>
           </div>
         </div>
-        <p style="font-size:0.74rem; color:#555; margin-top:6px;">※ 空欄の場合は判定に使用しません。特にREG重複は設定差が出やすい。</p>
-      </details>
-    </div>
-    <div class="budo-counter-wrap">
-      <div class="budo-counter-label">🍇 ぶどうカウンター（任意・入力すると実測値を優先）</div>
-      <div class="budo-counter-row">
-        <button class="budo-count-btn" id="budo-count-btn">🍇 +1</button>
-        <div class="budo-count-display"><span id="budo-count-val">0</span> 回</div>
-        <input type="number" id="inp-budo" style="display:none;" min="0">
-        <button class="budo-reset-btn" id="budo-reset-btn">リセット</button>
+        <!-- 全リセット -->
+        <button class="yaku-reset-all" id="yaku-reset-all">全リセット</button>
       </div>
     </div>
     <button class="btn btn-primary" onclick="calculate()">設定を推定する</button>
@@ -352,12 +480,14 @@
     <!-- スペック情報テーブル -->
     <div class="card" id="spec-card">
       <h2>設定別 理論値</h2>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
       <table class="spec-table" id="spec-table">
         <thead>
           <tr><th>設定</th><th>BIG確率</th><th>REG確率</th><th>合算確率</th><th>ぶどう確率</th><th>チェ重複BIG</th><th>チェ重複REG</th></tr>
         </thead>
         <tbody id="spec-tbody"></tbody>
       </table>
+      </div>
       <p style="font-size:0.74rem; color:#555; margin-top:8px; line-height:1.6;">
         ※ BIG/REG確率はBIG総数・REG総数ベース。チェリー重複確率はパチスロ解析情報を参考にした推定値（公式出典ではありません）。<br>
         ※ チェリー重複入力時は「単独BIG/REG + チェリー重複」に分解して計算（二重カウント回避）。
@@ -385,8 +515,15 @@
     <div class="notice" id="notice-box">
       ⚠ このツールは差枚逆算式の簡易計算です。リプレイ・チェリー以外の小役（ベル・ピエロ等）の払出は含みません。実測カウントの代替ではなく、目安としてご使用ください。設定推定はぶどう・BIG・REG確率を総合したポアソン尤度による計算です。総ゲーム数が少ない場合（1000G以下）は信頼度が低くなります。
     </div>
+    <button class="btn btn-save" style="margin-top:4px;" onclick="saveSingleRecord()">💾 この結果を保存</button>
   </div>
 
+
+  <div class="card" style="margin-top:14px;">
+    <h2>過去の記録</h2>
+    <div class="history-list" id="single-history-list"><div class="history-empty">保存された記録はありません</div></div>
+    <button class="csv-btn" onclick="exportCSV('single')">📥 CSVエクスポート</button>
+  </div>
 
   </div><!-- /mode-single -->
 
@@ -398,11 +535,11 @@
       <div class="grid2">
         <div>
           <label>店舗名</label>
-          <input type="text" id="isl-store" placeholder="例: ○○パーラー" style="background:#0d1220;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
+          <input type="text" id="isl-store" placeholder="例: ○○パーラー" style="background:#09090f;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
         </div>
         <div>
           <label>島名 / コーナー名</label>
-          <input type="text" id="isl-name" placeholder="例: マイジャグ島A" style="background:#0d1220;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
+          <input type="text" id="isl-name" placeholder="例: マイジャグ島A" style="background:#09090f;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
         </div>
       </div>
       <div class="grid2" style="margin-top:0;">
@@ -422,7 +559,7 @@
         </div>
         <div>
           <label>メモ（任意）</label>
-          <input type="text" id="isl-memo" placeholder="例: 土曜・イベント日" style="background:#0d1220;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
+          <input type="text" id="isl-memo" placeholder="例: 土曜・イベント日" style="background:#09090f;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
         </div>
       </div>
       <div id="isl-cbig-note" style="display:none;margin-top:4px;font-size:0.72em;color:#e67e22;background:#1a1000;border:1px solid #7a5000;border-radius:20px;padding:2px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">⚠️ 重複確率は近似値（未公式）・参考値として使用</div>
@@ -448,7 +585,7 @@
           <tbody id="island-tbody"></tbody>
         </table>
       </div>
-      <button class="btn btn-secondary" onclick="addIslandRow()" style="width:auto;padding:8px 16px;background:#2a2a4a;color:#d8d8d8;margin-top:10px;">＋ 台を追加</button>
+      <button class="btn btn-secondary" onclick="addIslandRow()" style="width:auto;padding:8px 16px;background:#1e1e2a;color:#d8d8d8;margin-top:10px;">＋ 台を追加</button>
     </div>
 
     <button class="btn btn-primary" onclick="calcIsland()">島全体を分析する</button>
@@ -488,13 +625,13 @@
         <p style="font-size:0.74rem;color:#555;margin-top:10px;">🟢 島平均より高設定寄り（ぶどう確率が低い）　🔴 低設定寄り　⚪ 平均前後</p>
       </div>
 
-      <button class="btn btn-primary" style="margin-top:4px;" onclick="saveIslandRecord()">💾 この結果を保存（7日間）</button>
+      <button class="btn btn-save" style="margin-top:4px;" onclick="saveIslandRecord()">💾 この結果を保存</button>
     </div>
 
     <div class="card" style="margin-top:14px;">
-      <h2>過去の記録 <span style="font-size:0.75rem;color:#888;font-weight:400;">（最大7日分・localStorageに保存）</span></h2>
+      <h2>過去の記録</h2>
       <div class="history-list" id="history-list"><div class="history-empty">保存された記録はありません</div></div>
-      <button class="csv-btn" onclick="exportCSV()">📥 CSVエクスポート</button>
+      <button class="csv-btn" onclick="exportCSV('island')">📥 CSVエクスポート</button>
     </div>
 
   </div><!-- /mode-island -->
@@ -505,9 +642,19 @@
     <!-- 共通設定 -->
     <div class="card">
       <h2>比較設定</h2>
+      <div class="grid2" style="margin-bottom:10px;">
+        <div>
+          <label>店舗名</label>
+          <input type="text" id="cmp-store" placeholder="例: ○○パーラー" style="background:#09090f;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
+        </div>
+        <div>
+          <label>島名 / コーナー名 <span class="hint">（任意）</span></label>
+          <input type="text" id="cmp-corner" placeholder="例: マイジャグ島A" style="background:#09090f;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
+        </div>
+      </div>
       <div class="grid2">
         <div>
-          <label>機種 <span class="hint">（A・B共通・同一スペックで比較）</span></label>
+          <label>機種 <span class="hint">（A・B共通）</span></label>
           <select id="cmp-preset" onchange="applyCmpPreset()">
             <option value="myj">マイジャグラーV</option>
             <option value="aimj">アイムジャグラーEX</option>
@@ -521,43 +668,19 @@
           </select>
         </div>
         <div>
-          <label>店舗名</label>
-          <input type="text" id="cmp-store" placeholder="例: ○○パーラー" style="background:#0d1220;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
+          <label>メモ <span class="hint">（任意）</span></label>
+          <input type="text" id="cmp-memo" placeholder="例: 土曜・イベント日" style="background:#09090f;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:9px 10px;width:100%;margin-top:4px;">
         </div>
       </div>
       <div id="cmp-cbig-note" style="display:none;margin-top:4px;font-size:0.72em;color:#e67e22;background:#1a1000;border:1px solid #7a5000;border-radius:20px;padding:2px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">⚠️ 重複確率は近似値（未公式）・参考値として使用</div>
       <div id="spec-mini-compare"></div>
     </div>
 
-    <!-- A/B グループ入力 -->
-    <div class="group-cols">
-      <!-- グループA -->
-      <div class="card group-card-a">
-        <h2><span class="group-label-a">Aグループ</span></h2>
-        <input type="text" id="cmp-a-name" placeholder="例: 左列・入口側" style="background:#0d1220;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:7px 10px;width:100%;font-size:0.85rem;margin-bottom:8px;">
-        <div class="island-table-wrap">
-          <table class="island-table" id="cmp-a-table">
-            <thead><tr><th>台番</th><th>G数</th><th>BIG</th><th>REG</th><th>差枚</th><th></th></tr></thead>
-            <tbody id="cmp-a-tbody"></tbody>
-          </table>
-        </div>
-        <button class="btn btn-secondary" onclick="addCmpRow('a')" style="width:auto;padding:6px 12px;background:#0a1a2a;border:1px solid #4a9eff;color:#4a9eff;border-radius:8px;cursor:pointer;font-size:0.82rem;margin-top:8px;">＋ 台を追加</button>
-      </div>
-      <!-- グループB -->
-      <div class="card group-card-b">
-        <h2><span class="group-label-b">Bグループ</span></h2>
-        <input type="text" id="cmp-b-name" placeholder="例: 右列・奥側" style="background:#0d1220;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:7px 10px;width:100%;font-size:0.85rem;margin-bottom:8px;">
-        <div class="island-table-wrap">
-          <table class="island-table" id="cmp-b-table">
-            <thead><tr><th>台番</th><th>G数</th><th>BIG</th><th>REG</th><th>差枚</th><th></th></tr></thead>
-            <tbody id="cmp-b-tbody"></tbody>
-          </table>
-        </div>
-        <button class="btn btn-secondary" onclick="addCmpRow('b')" style="width:auto;padding:6px 12px;background:#1a0a00;border:1px solid #ff7a4a;color:#ff7a4a;border-radius:8px;cursor:pointer;font-size:0.82rem;margin-top:8px;">＋ 台を追加</button>
-      </div>
-    </div>
+    <!-- グループ入力エリア -->
+    <div id="group-cols-wrap"></div>
+    <button class="add-group-btn" id="add-group-btn" onclick="addGroup()">＋ グループを追加（最大4グループ）</button>
 
-    <button class="btn btn-primary" onclick="calcCompare()">A / B を比較する</button>
+    <button class="btn btn-primary" onclick="calcCompare()">グループを比較する</button>
 
     <!-- 比較結果 -->
     <div id="compare-result" style="display:none;">
@@ -568,15 +691,27 @@
         <div class="winner-sub" id="cmp-winner-sub">—</div>
       </div>
 
+      <!-- 結論カード -->
+      <div id="cmp-conclusion-card" class="card" style="margin-top:10px;border-left:3px solid #4a9eff;">
+        <h2 style="font-size:0.85rem;color:#aaa;margin-bottom:6px;">📋 実戦判断メモ</h2>
+        <div id="cmp-conclusion-text" style="font-size:0.9rem;line-height:1.7;color:#e0e0e0;">—</div>
+      </div>
+
       <!-- A/B サマリー比較 -->
       <div class="card">
         <h2>A / B 比較</h2>
-        <div class="compare-grid" style="margin-bottom:10px;">
+        <div class="compare-grid" style="margin-bottom:8px;">
           <div class="cmp-a" style="font-size:0.72rem;color:#4a9eff;" id="cmp-a-title">Aグループ</div>
           <div class="cmp-label"></div>
           <div class="cmp-b" style="font-size:0.72rem;color:#ff7a4a;" id="cmp-b-title">Bグループ</div>
         </div>
-        <div id="cmp-rows"></div>
+        <!-- キー指標（上段：実戦で即判断する3行） -->
+        <div id="cmp-key-rows"></div>
+        <!-- 詳細折り畳み -->
+        <details id="cmp-detail-wrap" style="margin-top:10px;">
+          <summary style="font-size:0.78rem;color:#666;cursor:pointer;padding:4px 0;user-select:none;list-style:none;">▼ 詳細数値</summary>
+          <div id="cmp-rows" style="margin-top:6px;"></div>
+        </details>
       </div>
 
       <!-- 各グループ台別 -->
@@ -591,14 +726,14 @@
         </div>
       </div>
 
-      <button id="cmp-save-btn" class="btn btn-primary" style="margin-top:4px;">💾 比較結果を保存</button>
+      <button id="cmp-save-btn" class="btn btn-save" style="margin-top:4px;">💾 比較結果を保存</button>
     </div>
 
     <!-- 履歴（島モードと共用） -->
     <div class="card" style="margin-top:14px;">
-      <h2>過去の記録 <span style="font-size:0.75rem;color:#888;font-weight:400;">（島モードと共用）</span></h2>
+      <h2>過去の記録</h2>
       <div class="history-list" id="cmp-history-list"><div class="history-empty">保存された記録はありません</div></div>
-      <button class="csv-btn" onclick="exportCSV()">📥 CSVエクスポート</button>
+      <button class="csv-btn" onclick="exportCSV('compare')">📥 CSVエクスポート</button>
     </div>
 
   </div><!-- /mode-compare -->
@@ -872,16 +1007,16 @@ function bonusDiff(P, actual, theoryDenom) {
   const expected = P / theoryDenom;
   const diff = actual - expected;
   let label, cls;
-  if (diff >= 1.0)       { label = `+${diff.toFixed(1)}回（上振れ）`; cls = 'conf-high'; }
-  else if (diff <= -1.0) { label = `${diff.toFixed(1)}回（下振れ）`; cls = 'conf-low'; }
-  else                   { label = `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}回（ほぼ理論値）`; cls = ''; }
+  if (diff >= 1.0)       { label = `+${diff.toFixed(1)}回 ↑`; cls = 'conf-high'; }
+  else if (diff <= -1.0) { label = `${diff.toFixed(1)}回 ↓`; cls = 'conf-low'; }
+  else                   { label = `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}回`; cls = ''; }
   return { label, cls };
 }
 
 function confidenceLevel(P) {
-  if (P >= 5000) return { text: '信頼度高め（過信は禁物）', cls: 'conf-high' };
-  if (P >= 2000) return { text: '判断材料（まだブレあり）', cls: 'conf-mid' };
-  return { text: '参考値（サンプル不足）', cls: 'conf-low' };
+  if (P >= 5000) return { text: '信頼度高め', cls: 'conf-high' };
+  if (P >= 2000) return { text: '判断材料', cls: 'conf-mid' };
+  return { text: 'サンプル不足', cls: 'conf-low' };
 }
 
 function settingRange(probs) {
@@ -896,7 +1031,7 @@ function calculate() {
   const P   = +document.getElementById('inp-p').value;
   const BIG = +document.getElementById('inp-big').value;
   const REG = +document.getElementById('inp-reg').value;
-  const D   = +document.getElementById('inp-d').value;
+  const D   = getDiffValue(document.getElementById('inp-d'), document.getElementById('diff-sign-btn'));
   const cbigRaw = document.getElementById('inp-cbig').value;
   const cregRaw = document.getElementById('inp-creg').value;
   const cBIG = cbigRaw !== '' ? +cbigRaw : null;
@@ -1035,6 +1170,23 @@ function calculate() {
   }
 
   document.getElementById('result-area').className = 'result-area visible';
+
+  // 単台保存用データ
+  const probs2 = settingScores(P, BIG, REG, r.budoProb, currentPreset.theory, cBIG, cREG);
+  const topIdx2 = probs2 ? probs2.indexOf(Math.max(...probs2)) + 1 : null;
+  window._lastSingleData = {
+    type: 'single',
+    store: document.getElementById('single-store').value,
+    corner: document.getElementById('single-corner').value,
+    memo: document.getElementById('single-memo').value,
+    machineNum: document.getElementById('inp-machine-num').value,
+    preset: document.getElementById('preset').value,
+    presetName: currentPreset.name,
+    totG: P, big: BIG, reg: REG, diff: D,
+    budoProb: r.budoProb.toFixed(2),
+    topSetting: topIdx2,
+    settingRange: probs2 ? settingRange(probs2) : '—',
+  };
 }
 
 // ===== ミニスペック表描画 =====
@@ -1103,18 +1255,76 @@ function renderMachineSpec(params, targetId) {
 }
 
 // ===== モード切り替え =====
-// ぶどうカウンター
+// ===== 子役カウンター =====
 (function() {
-  let count = 0;
-  const countVal = document.getElementById('budo-count-val');
-  const hiddenInput = document.getElementById('inp-budo');
-  function update() { countVal.textContent = count; hiddenInput.value = count > 0 ? count : ''; }
-  const incBtn = document.getElementById('budo-count-btn');
-  const rstBtn = document.getElementById('budo-reset-btn');
-  incBtn.addEventListener('click', () => { count++; update(); });
-  incBtn.addEventListener('touchend', e => { e.preventDefault(); count++; update(); });
-  rstBtn.addEventListener('click', () => { count = 0; update(); });
-  rstBtn.addEventListener('touchend', e => { e.preventDefault(); count = 0; update(); });
+  const counts = { budo: 0, cherry: 0, 'solo-big': 0, 'solo-reg': 0, cbig: 0, creg: 0 };
+  window._yakuCounts = counts;
+  const inputIds = { budo: 'inp-budo', cherry: 'inp-cherry', 'solo-big': 'inp-solo-big', 'solo-reg': 'inp-solo-reg', cbig: 'inp-cbig', creg: 'inp-creg' };
+  const valIds = { budo: 'budo-count-val', cherry: 'cherry-count-val', 'solo-big': 'solo-big-count-val', 'solo-reg': 'solo-reg-count-val', cbig: 'cbig-count-val', creg: 'creg-count-val' };
+
+  function updateDisplay(key) {
+    const val = document.getElementById(valIds[key]);
+    const inp = document.getElementById(inputIds[key]);
+    if (val) val.textContent = counts[key];
+    if (inp) inp.value = counts[key] > 0 ? counts[key] : '';
+  }
+
+  function addListener(btnId, key) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.addEventListener('click', () => { counts[key]++; updateDisplay(key); });
+    btn.addEventListener('touchend', e => { e.preventDefault(); counts[key]++; updateDisplay(key); });
+  }
+
+  addListener('budo-count-btn', 'budo');
+  addListener('cherry-count-btn', 'cherry');
+  addListener('solo-big-count-btn', 'solo-big');
+  addListener('solo-reg-count-btn', 'solo-reg');
+  addListener('cbig-count-btn', 'cbig');
+  addListener('creg-count-btn', 'creg');
+
+  // リセットボタン（個別）
+  document.querySelectorAll('.yaku-reset').forEach(btn => {
+    const key = btn.dataset.target;
+    btn.addEventListener('click', () => { counts[key] = 0; updateDisplay(key); });
+    btn.addEventListener('touchend', e => { e.preventDefault(); counts[key] = 0; updateDisplay(key); });
+  });
+
+  // -1ボタン
+  document.querySelectorAll('.yaku-dec-btn').forEach(btn => {
+    const key = btn.dataset.dec;
+    const dec = () => { counts[key] = Math.max(0, counts[key] - 1); updateDisplay(key); };
+    btn.addEventListener('click', dec);
+    btn.addEventListener('touchend', e => { e.preventDefault(); dec(); });
+  });
+
+  // 全リセット
+  const resetAll = document.getElementById('yaku-reset-all');
+  if (resetAll) {
+    resetAll.addEventListener('click', () => { Object.keys(counts).forEach(k => { counts[k] = 0; updateDisplay(k); }); });
+    resetAll.addEventListener('touchend', e => { e.preventDefault(); Object.keys(counts).forEach(k => { counts[k] = 0; updateDisplay(k); }); });
+  }
+
+  // モード切替
+  document.querySelectorAll('.ymode-btn').forEach(btn => {
+    btn.addEventListener('click', () => setMode(btn.dataset.mode));
+    btn.addEventListener('touchend', e => { e.preventDefault(); setMode(btn.dataset.mode); });
+  });
+
+  function setMode(mode) {
+    document.querySelectorAll('.ymode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    const body = document.getElementById('yakucount-body');
+    const fullRows = document.getElementById('yaku-full-rows');
+    if (mode === 'none') {
+      body.style.display = 'none';
+    } else if (mode === 'budo') {
+      body.style.display = 'block';
+      if (fullRows) fullRows.style.display = 'none';
+    } else {
+      body.style.display = 'block';
+      if (fullRows) fullRows.style.display = 'block';
+    }
+  }
 })();
 
 document.querySelectorAll('.mode-tab[data-mode]').forEach(btn => {
@@ -1150,13 +1360,13 @@ function addIslandRow(defaults) {
   const tr = document.createElement('tr');
   tr.id = 'irow-' + id;
   tr.innerHTML = `
-    <td><input type="text" value="${d.label||''}" placeholder="台番" style="background:#0d1220;border:1px solid #333;border-radius:6px;color:#f0f0f0;padding:5px 5px;width:100%;font-size:0.8rem;"></td>
-    <td><input type="number" class="num-col" value="${d.g||''}" placeholder="0" min="0"></td>
-    <td><input type="number" class="num-col" value="${d.big||''}" placeholder="0" min="0"></td>
-    <td><input type="number" class="num-col" value="${d.reg||''}" placeholder="0" min="0"></td>
-    <td><input type="number" class="num-col" value="${d.diff||''}" placeholder="0"></td>
-    <td><input type="number" class="num-col" value="${d.cbig||''}" placeholder="—" min="0"></td>
-    <td><input type="number" class="num-col" value="${d.creg||''}" placeholder="—" min="0"></td>
+    <td><input type="text" inputmode="numeric" value="${d.label||''}" placeholder="台番" style="background:#09090f;border:1px solid #333;border-radius:6px;color:#f0f0f0;padding:5px 5px;width:100%;font-size:0.8rem;"></td>
+    <td><input type="number" inputmode="numeric" class="num-col" value="${d.g||''}" placeholder="0" min="0"></td>
+    <td><input type="number" inputmode="numeric" class="num-col" value="${d.big||''}" placeholder="0" min="0"></td>
+    <td><input type="number" inputmode="numeric" class="num-col" value="${d.reg||''}" placeholder="0" min="0"></td>
+    <td><div class="diff-wrap"><button class="diff-sign-btn ${(d.diff||0)<0?'minus':'plus'}" onclick="toggleDiffSign(this.nextElementSibling,this)">${(d.diff||0)<0?'－':'＋'}</button><input type="text" inputmode="numeric" class="num-col" value="${d.diff!==undefined?Math.abs(d.diff):''}" placeholder="0" style="margin-top:0;"></div></td>
+    <td><input type="number" inputmode="numeric" class="num-col" value="${d.cbig||''}" placeholder="—" min="0"></td>
+    <td><input type="number" inputmode="numeric" class="num-col" value="${d.creg||''}" placeholder="—" min="0"></td>
     <td><button class="remove-btn" onclick="removeIslandRow('irow-${id}')">✕</button></td>
   `;
   tbody.appendChild(tr);
@@ -1174,7 +1384,7 @@ function getIslandRows() {
     const g     = +inputs[1].value;
     const big   = +inputs[2].value;
     const reg   = +inputs[3].value;
-    const diff  = +inputs[4].value;
+    const diff  = getDiffValue(inputs[4], inputs[4].previousElementSibling);
     const cbigV = inputs[5].value;
     const cregV = inputs[6].value;
     if (g > 0) {
@@ -1350,15 +1560,17 @@ function calcIsland() {
 }
 
 // ===== localStorage 保存・履歴 =====
-const STORAGE_KEY = 'juggler_island_history';
+const STORAGE_KEY_SINGLE  = 'juggler_single_history';
+const STORAGE_KEY_ISLAND  = 'juggler_island_history';
+const STORAGE_KEY_COMPARE = 'juggler_compare_history';
 
-function loadHistory() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+function loadHistory(key) {
+  try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; }
 }
 
 function saveIslandRecord() {
   if (!window._lastIslandData) return;
-  const history = loadHistory();
+  const history = loadHistory(STORAGE_KEY_ISLAND);
   const now = new Date();
   const jst = new Date(now.getTime() + 9 * 3600 * 1000);
   const dateStr = jst.toISOString().slice(0, 10);
@@ -1375,7 +1587,7 @@ function saveIslandRecord() {
   // 7日分のみ保持
   const cutoff = new Date(jst.getTime() - 7 * 24 * 3600 * 1000).toISOString().slice(0, 10);
   const filtered = history.filter(r => r.date >= cutoff).slice(0, 100);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  localStorage.setItem(STORAGE_KEY_ISLAND, JSON.stringify(filtered));
   renderHistory();
   showToast('💾 保存しました');
 }
@@ -1399,7 +1611,7 @@ function historyItemHTML(r, i) {
 }
 
 function renderHistory() {
-  const history = loadHistory();
+  const history = loadHistory(STORAGE_KEY_ISLAND);
   const el = document.getElementById('history-list');
   if (!el) return;
   el.innerHTML = history.length
@@ -1408,7 +1620,7 @@ function renderHistory() {
 }
 
 function loadHistoryItem(idx) {
-  const history = loadHistory();
+  const history = loadHistory(STORAGE_KEY_ISLAND);
   const r = history[idx];
   if (!r) return;
 
@@ -1445,7 +1657,64 @@ function loadHistoryItem(idx) {
 }
 
 // ===== 比較モード =====
-let cmpRowId = { a: 0, b: 0 };
+const GROUP_COLORS = {
+  a: { label: 'A', color: '#4a9eff', bg: '#0a1a2a', cardClass: 'group-card-a', labelClass: 'group-label-a', addBg: '#0a1a2a', addBorder: '#4a9eff', addColor: '#4a9eff', winnerClass: 'winner-a' },
+  b: { label: 'B', color: '#ff7a4a', bg: '#1a0a00', cardClass: 'group-card-b', labelClass: 'group-label-b', addBg: '#1a0a00', addBorder: '#ff7a4a', addColor: '#ff7a4a', winnerClass: 'winner-b' },
+  c: { label: 'C', color: '#6aff6a', bg: '#0a1a0a', cardClass: 'group-card-c', labelClass: 'group-label-c', addBg: '#0a1a0a', addBorder: '#6aff6a', addColor: '#6aff6a', winnerClass: 'winner-c' },
+  d: { label: 'D', color: '#f0c040', bg: '#1a1400', cardClass: 'group-card-d', labelClass: 'group-label-d', addBg: '#1a1400', addBorder: '#f0c040', addColor: '#f0c040', winnerClass: 'winner-d' },
+};
+let activeGroups = ['a', 'b'];
+let cmpRowId = {};
+
+function renderGroupInputs() {
+  const wrap = document.getElementById('group-cols-wrap');
+  if (!wrap) return;
+  // group-cols div をリビルド
+  let html = '<div class="group-cols" id="group-cols" style="margin-bottom:0;">';
+  activeGroups.forEach(g => {
+    const gc = GROUP_COLORS[g];
+    const canDelete = (g === 'c' || g === 'd');
+    const deleteBtn = canDelete
+      ? `<button onclick="removeGroup('${g}')" style="background:none;border:none;color:#ff8a8a;cursor:pointer;font-size:0.85rem;margin-left:8px;">[×]</button>`
+      : '';
+    html += `
+      <div class="card ${gc.cardClass}" id="group-card-${g}">
+        <h2 style="display:flex;align-items:center;justify-content:space-between;">
+          <span><span class="${gc.labelClass}">${gc.label}グループ</span></span>
+          ${deleteBtn}
+        </h2>
+        <input type="text" id="cmp-${g}-name" placeholder="例: 左列・入口側" style="background:#09090f;border:1px solid #333;border-radius:8px;color:#f0f0f0;padding:7px 10px;width:100%;font-size:0.85rem;margin-bottom:8px;">
+        <div class="island-table-wrap">
+          <table class="island-table" id="cmp-${g}-table">
+            <thead><tr><th style="width:48px;">台番</th><th style="width:56px;">G数</th><th style="width:48px;">BIG</th><th style="width:48px;">REG</th><th style="width:72px;">差枚</th><th style="width:28px;"></th></tr></thead>
+            <tbody id="cmp-${g}-tbody"></tbody>
+          </table>
+        </div>
+        <button class="btn btn-secondary" onclick="addCmpRow('${g}')" style="width:auto;padding:6px 12px;background:${gc.addBg};border:1px solid ${gc.addBorder};color:${gc.addColor};border-radius:8px;cursor:pointer;font-size:0.82rem;margin-top:8px;">＋ 台を追加</button>
+      </div>`;
+  });
+  html += '</div>';
+  wrap.innerHTML = html;
+  const addBtn = document.getElementById('add-group-btn');
+  if (addBtn) addBtn.style.display = activeGroups.length >= 4 ? 'none' : 'block';
+}
+
+function addGroup() {
+  const next = ['a','b','c','d'].find(g => !activeGroups.includes(g));
+  if (!next) return;
+  activeGroups.push(next);
+  cmpRowId[next] = 0;
+  renderGroupInputs();
+  // 新グループに初期行を追加
+  addCmpRow(next);
+  addCmpRow(next);
+}
+
+function removeGroup(key) {
+  if (key === 'a' || key === 'b') { showToast('A・Bグループは削除できません'); return; }
+  activeGroups = activeGroups.filter(g => g !== key);
+  renderGroupInputs();
+}
 
 function applyCmpPreset() {
   const key = document.getElementById('cmp-preset').value;
@@ -1455,17 +1724,18 @@ function applyCmpPreset() {
 }
 
 function addCmpRow(group, defaults) {
+  if (cmpRowId[group] === undefined) cmpRowId[group] = 0;
   const id = cmpRowId[group]++;
   const d = defaults || {};
   const tbody = document.getElementById('cmp-' + group + '-tbody');
   const tr = document.createElement('tr');
   tr.id = 'crow-' + group + '-' + id;
   tr.innerHTML = `
-    <td><input type="text" value="${d.label||''}" placeholder="台番" style="background:#0d1220;border:1px solid #333;border-radius:6px;color:#f0f0f0;padding:5px;width:100%;font-size:0.8rem;"></td>
-    <td><input type="number" value="${d.g||''}" placeholder="0" min="0" style="background:#0d1220;border:1px solid #333;border-radius:6px;color:#f0f0f0;padding:5px;width:100%;font-size:0.8rem;"></td>
-    <td><input type="number" value="${d.big||''}" placeholder="0" min="0" style="background:#0d1220;border:1px solid #333;border-radius:6px;color:#f0f0f0;padding:5px;width:100%;font-size:0.8rem;"></td>
-    <td><input type="number" value="${d.reg||''}" placeholder="0" min="0" style="background:#0d1220;border:1px solid #333;border-radius:6px;color:#f0f0f0;padding:5px;width:100%;font-size:0.8rem;"></td>
-    <td><input type="number" value="${d.diff||''}" placeholder="0" style="background:#0d1220;border:1px solid #333;border-radius:6px;color:#f0f0f0;padding:5px;width:100%;font-size:0.8rem;"></td>
+    <td><input type="text" inputmode="numeric" value="${d.label||''}" placeholder="台番" style="background:#09090f;border:1px solid #333;border-radius:6px;color:#f0f0f0;padding:5px;width:100%;font-size:0.8rem;"></td>
+    <td><input type="number" inputmode="numeric" value="${d.g||''}" placeholder="0" min="0" style="background:#09090f;border:1px solid #333;border-radius:6px;color:#f0f0f0;padding:5px;width:100%;font-size:0.8rem;"></td>
+    <td><input type="number" inputmode="numeric" value="${d.big||''}" placeholder="0" min="0" style="background:#09090f;border:1px solid #333;border-radius:6px;color:#f0f0f0;padding:5px;width:100%;font-size:0.8rem;"></td>
+    <td><input type="number" inputmode="numeric" value="${d.reg||''}" placeholder="0" min="0" style="background:#09090f;border:1px solid #333;border-radius:6px;color:#f0f0f0;padding:5px;width:100%;font-size:0.8rem;"></td>
+    <td><div class="diff-wrap"><button class="diff-sign-btn ${(d.diff||0)<0?'minus':'plus'}" onclick="toggleDiffSign(this.nextElementSibling,this)">${(d.diff||0)<0?'－':'＋'}</button><input type="text" inputmode="numeric" value="${d.diff!==undefined?Math.abs(d.diff):''}" placeholder="0" style="background:#09090f;border:1px solid #333;border-radius:6px;color:#f0f0f0;padding:5px;width:100%;font-size:0.8rem;margin-top:0;"></div></td>
     <td><button class="remove-btn" onclick="document.getElementById('crow-${group}-${id}').remove()">✕</button></td>
   `;
   tbody.appendChild(tr);
@@ -1478,7 +1748,7 @@ function getCmpRows(group) {
     const g = +inputs[1].value;
     if (g > 0) rows.push({
       label: inputs[0].value || '—',
-      g, big: +inputs[2].value, reg: +inputs[3].value, diff: +inputs[4].value,
+      g, big: +inputs[2].value, reg: +inputs[3].value, diff: getDiffValue(inputs[4], inputs[4].previousElementSibling),
       cbig: null, creg: null,
     });
   });
@@ -1526,88 +1796,243 @@ function renderGroupMachines(divId, machineResults, avgBudo) {
 function calcCompare() {
   const key = document.getElementById('cmp-preset').value;
   const params = PRESETS[key];
-  const rowsA = getCmpRows('a');
-  const rowsB = getCmpRows('b');
-  if (!rowsA.length || !rowsB.length) { showToast('A・B両グループにデータを入力してください'); return; }
 
-  const gA = calcGroup(rowsA, params);
-  const gB = calcGroup(rowsB, params);
-  if (!gA.avgBudo || !gB.avgBudo) { showToast('ぶどうが算出できません。入力値を確認してください。'); return; }
+  // 全アクティブグループのデータを収集
+  const groupResults = {};
+  const groupRows = {};
+  for (const g of activeGroups) {
+    const rows = getCmpRows(g);
+    if (!rows.length) { showToast(`${GROUP_COLORS[g].label}グループにデータがありません`); return; }
+    const result = calcGroup(rows, params);
+    if (!result.avgBudo) { showToast(`${GROUP_COLORS[g].label}グループのぶどうが算出できません`); return; }
+    groupResults[g] = result;
+    groupRows[g] = rows;
+  }
 
-  const nameA = document.getElementById('cmp-a-name').value || 'Aグループ';
-  const nameB = document.getElementById('cmp-b-name').value || 'Bグループ';
+  // 勝者判定（ぶどう確率が最も低いグループ）
+  let bestGroup = activeGroups[0];
+  for (const g of activeGroups) {
+    if (groupResults[g].avgBudo < groupResults[bestGroup].avgBudo) bestGroup = g;
+  }
+  const gc = GROUP_COLORS[bestGroup];
+  const bestName = document.getElementById(`cmp-${bestGroup}-name`).value || `${gc.label}グループ`;
+  const bestBudo = groupResults[bestGroup].avgBudo;
 
-  // 勝者判定（ぶどう確率が低い方＝良い）
-  const budoDiff = gA.avgBudo - gB.avgBudo;
+  // 最下位と最上位の差
+  let worstGroup = activeGroups[0];
+  for (const g of activeGroups) {
+    if (groupResults[g].avgBudo > groupResults[worstGroup].avgBudo) worstGroup = g;
+  }
+  const budoDiff = groupResults[worstGroup].avgBudo - bestBudo;
+
   let winnerCls, winnerText, winnerSub;
-  if (budoDiff < -0.1) {
-    winnerCls = 'winner-a';
-    winnerText = `${nameA} が強い 🔵`;
-    winnerSub = `ぶどう差 ${Math.abs(budoDiff).toFixed(2)} (A有利)`;
-  } else if (budoDiff > 0.1) {
-    winnerCls = 'winner-b';
-    winnerText = `${nameB} が強い 🟠`;
-    winnerSub = `ぶどう差 ${Math.abs(budoDiff).toFixed(2)} (B有利)`;
+  if (activeGroups.length === 2) {
+    const [ga, gb] = activeGroups;
+    const diff = groupResults[ga].avgBudo - groupResults[gb].avgBudo;
+    const nameA = document.getElementById(`cmp-${ga}-name`).value || `${GROUP_COLORS[ga].label}グループ`;
+    const nameB = document.getElementById(`cmp-${gb}-name`).value || `${GROUP_COLORS[gb].label}グループ`;
+    if (diff < -0.1) {
+      winnerCls = GROUP_COLORS[ga].winnerClass;
+      winnerText = `${nameA} が強い`;
+      winnerSub = `ぶどう差 ${Math.abs(diff).toFixed(2)} (${GROUP_COLORS[ga].label}有利)`;
+    } else if (diff > 0.1) {
+      winnerCls = GROUP_COLORS[gb].winnerClass;
+      winnerText = `${nameB} が強い`;
+      winnerSub = `ぶどう差 ${Math.abs(diff).toFixed(2)} (${GROUP_COLORS[gb].label}有利)`;
+    } else {
+      winnerCls = 'winner-tie';
+      winnerText = 'ほぼ同等 ⚪';
+      winnerSub = `ぶどう差 ${Math.abs(diff).toFixed(2)} (誤差範囲内)`;
+    }
   } else {
-    winnerCls = 'winner-tie';
-    winnerText = 'ほぼ同等 ⚪';
-    winnerSub = `ぶどう差 ${Math.abs(budoDiff).toFixed(2)} (誤差範囲内)`;
+    if (budoDiff < 0.1) {
+      winnerCls = 'winner-tie';
+      winnerText = '全グループほぼ同等 ⚪';
+      winnerSub = `最大ぶどう差 ${budoDiff.toFixed(2)}`;
+    } else {
+      winnerCls = gc.winnerClass;
+      winnerText = `${bestName} が最強`;
+      winnerSub = `ぶどう 1/${bestBudo.toFixed(2)} — 最高設定寄り`;
+    }
   }
   const wc = document.getElementById('cmp-winner-card');
   wc.className = 'compare-winner ' + winnerCls;
   document.getElementById('cmp-winner-text').textContent = winnerText;
   document.getElementById('cmp-winner-sub').textContent  = winnerSub;
 
-  // タイトル更新
-  document.getElementById('cmp-a-title').textContent = nameA;
-  document.getElementById('cmp-b-title').textContent = nameB;
+  // A/B サマリー比較（2グループの場合のみ compare-grid 形式）
+  const cmpRowsEl = document.getElementById('cmp-rows');
+  if (activeGroups.length === 2) {
+    const [ga, gb] = activeGroups;
+    const gA = groupResults[ga], gB = groupResults[gb];
+    const nameA = document.getElementById(`cmp-${ga}-name`).value || `${GROUP_COLORS[ga].label}グループ`;
+    const nameB = document.getElementById(`cmp-${gb}-name`).value || `${GROUP_COLORS[gb].label}グループ`;
+    document.getElementById('cmp-a-title').textContent = nameA;
+    document.getElementById('cmp-b-title').textContent = nameB;
+    const keyMetrics = [
+      { label: '合算ぶどう', a: '1/'+gA.avgBudo.toFixed(2), b: '1/'+gB.avgBudo.toFixed(2), better: gA.avgBudo < gB.avgBudo ? 'a' : gA.avgBudo > gB.avgBudo ? 'b' : null },
+      { label: '差枚合計', a: (gA.totDiff>=0?'+':'')+gA.totDiff.toLocaleString()+'枚', b: (gB.totDiff>=0?'+':'')+gB.totDiff.toLocaleString()+'枚', better: gA.totDiff > gB.totDiff ? 'a' : gA.totDiff < gB.totDiff ? 'b' : null },
+      { label: '設定レンジ', a: gA.probs ? settingRange(gA.probs) : '—', b: gB.probs ? settingRange(gB.probs) : '—', better: null },
+    ];
+    const detailMetrics = [
+      { label: '合計G数', a: gA.totG.toLocaleString(), b: gB.totG.toLocaleString(), better: null },
+      { label: 'BIG確率', a: gA.totBIG > 0 ? '1/'+(gA.totG/gA.totBIG).toFixed(1) : '∞', b: gB.totBIG > 0 ? '1/'+(gB.totG/gB.totBIG).toFixed(1) : '∞', better: gA.totBIG/gA.totG > gB.totBIG/gB.totG ? 'a' : 'b' },
+      { label: 'REG確率', a: gA.totREG > 0 ? '1/'+(gA.totG/gA.totREG).toFixed(1) : '∞', b: gB.totREG > 0 ? '1/'+(gB.totG/gB.totREG).toFixed(1) : '∞', better: gA.totREG/gA.totG > gB.totREG/gB.totG ? 'a' : 'b' },
+      { label: '台数', a: groupRows[ga].length+'台', b: groupRows[gb].length+'台', better: null },
+      { label: '信頼度', a: confidenceLevel(gA.totG).text, b: confidenceLevel(gB.totG).text, better: null },
+      ...(params.theory ? [
+        { label: 'BIG設定4比', a: bonusDiff(gA.totG, gA.totBIG, params.theory.big[3]).label, b: bonusDiff(gB.totG, gB.totBIG, params.theory.big[3]).label, better: null },
+        { label: 'REG設定4比', a: bonusDiff(gA.totG, gA.totREG, params.theory.reg[3]).label, b: bonusDiff(gB.totG, gB.totREG, params.theory.reg[3]).label, better: null },
+      ] : []),
+    ];
+    const renderGrid = m => `
+      <div class="compare-grid">
+        <div class="cmp-a ${m.better==='a'?'cmp-better-a':m.better==='b'?'cmp-equal':''}">${m.a}</div>
+        <div class="cmp-label">${m.label}</div>
+        <div class="cmp-b ${m.better==='b'?'cmp-better-b':m.better==='a'?'cmp-equal':''}">${m.b}</div>
+      </div>`;
+    document.getElementById('cmp-key-rows').innerHTML = keyMetrics.map(renderGrid).join('');
+    cmpRowsEl.innerHTML = detailMetrics.map(renderGrid).join('');
+  } else {
+    // 3〜4グループ: 一覧テーブル形式
+    const headers = activeGroups.map(g => {
+      const name = document.getElementById(`cmp-${g}-name`).value || `${GROUP_COLORS[g].label}グループ`;
+      return `<th style="color:${GROUP_COLORS[g].color}">${name}</th>`;
+    }).join('');
+    const rowDefs = [
+      { label: '合計G数', fn: g => groupResults[g].totG.toLocaleString() },
+      { label: '合算ぶどう', fn: g => '1/'+groupResults[g].avgBudo.toFixed(2) },
+      { label: 'BIG確率', fn: g => groupResults[g].totBIG > 0 ? '1/'+(groupResults[g].totG/groupResults[g].totBIG).toFixed(1) : '∞' },
+      { label: 'REG確率', fn: g => groupResults[g].totREG > 0 ? '1/'+(groupResults[g].totG/groupResults[g].totREG).toFixed(1) : '∞' },
+      { label: '差枚合計', fn: g => (groupResults[g].totDiff>=0?'+':'')+groupResults[g].totDiff.toLocaleString()+'枚' },
+      { label: '設定レンジ', fn: g => groupResults[g].probs ? settingRange(groupResults[g].probs) : '—' },
+      { label: '台数', fn: g => groupRows[g].length+'台' },
+    ];
+    const tableRows = rowDefs.map(rd => {
+      const cells = activeGroups.map(g => {
+        const isBest = (rd.label === '合算ぶどう' && g === bestGroup);
+        return `<td style="${isBest?'color:#6aff6a;font-weight:700;':''}">${rd.fn(g)}</td>`;
+      }).join('');
+      return `<tr><td style="color:#888;white-space:nowrap;">${rd.label}</td>${cells}</tr>`;
+    }).join('');
+    cmpRowsEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+      <thead><tr><th></th>${headers}</tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>`;
+  }
 
-  // 比較行描画
-  const metrics = [
-    { label: '合計G数', a: gA.totG.toLocaleString(), b: gB.totG.toLocaleString(), better: null },
-    { label: '合算ぶどう', a: '1/' + gA.avgBudo.toFixed(2), b: '1/' + gB.avgBudo.toFixed(2), better: gA.avgBudo < gB.avgBudo ? 'a' : gA.avgBudo > gB.avgBudo ? 'b' : null },
-    { label: 'BIG確率', a: gA.totBIG > 0 ? '1/'+(gA.totG/gA.totBIG).toFixed(1) : '∞', b: gB.totBIG > 0 ? '1/'+(gB.totG/gB.totBIG).toFixed(1) : '∞', better: gA.totBIG/gA.totG > gB.totBIG/gB.totG ? 'a' : 'b' },
-    { label: 'REG確率', a: gA.totREG > 0 ? '1/'+(gA.totG/gA.totREG).toFixed(1) : '∞', b: gB.totREG > 0 ? '1/'+(gB.totG/gB.totREG).toFixed(1) : '∞', better: gA.totREG/gA.totG > gB.totREG/gB.totG ? 'a' : 'b' },
-    { label: '差枚合計', a: (gA.totDiff>=0?'+':'')+gA.totDiff.toLocaleString()+'枚', b: (gB.totDiff>=0?'+':'')+gB.totDiff.toLocaleString()+'枚', better: gA.totDiff > gB.totDiff ? 'a' : gA.totDiff < gB.totDiff ? 'b' : null },
-    { label: '設定レンジ', a: gA.probs ? settingRange(gA.probs) : '—', b: gB.probs ? settingRange(gB.probs) : '—', better: null },
-    { label: '台数', a: rowsA.length + '台', b: rowsB.length + '台', better: null },
-    { label: '信頼度', a: confidenceLevel(gA.totG).text, b: confidenceLevel(gB.totG).text, better: null },
-    ...(params.theory ? [
-      { label: 'BIG設定4比', a: bonusDiff(gA.totG, gA.totBIG, params.theory.big[3]).label, b: bonusDiff(gB.totG, gB.totBIG, params.theory.big[3]).label, better: null },
-      { label: 'REG設定4比', a: bonusDiff(gA.totG, gA.totREG, params.theory.reg[3]).label, b: bonusDiff(gB.totG, gB.totREG, params.theory.reg[3]).label, better: null },
-    ] : []),
-  ];
-  const cmpRows = document.getElementById('cmp-rows');
-  cmpRows.innerHTML = metrics.map(m => `
-    <div class="compare-grid">
-      <div class="cmp-a ${m.better === 'a' ? 'cmp-better-a' : m.better === 'b' ? 'cmp-equal' : ''}">${m.a}</div>
-      <div class="cmp-label">${m.label}</div>
-      <div class="cmp-b ${m.better === 'b' ? 'cmp-better-b' : m.better === 'a' ? 'cmp-equal' : ''}">${m.b}</div>
-    </div>
-  `).join('');
-
-  // 台別結果
-  renderGroupMachines('cmp-a-machine-results', gA.machineResults, gA.avgBudo);
-  renderGroupMachines('cmp-b-machine-results', gB.machineResults, gB.avgBudo);
+  // 各グループ台別結果（compare-result内の group-cols を動的更新）
+  const resultGroupCols = document.querySelector('#compare-result .group-cols');
+  if (resultGroupCols) {
+    let machineHTML = '';
+    for (const g of activeGroups) {
+      const gc2 = GROUP_COLORS[g];
+      const name = document.getElementById(`cmp-${g}-name`).value || `${gc2.label}グループ`;
+      machineHTML += `<div class="card ${gc2.cardClass}"><h2><span class="${gc2.labelClass}">${gc2.label}</span> 台別</h2><div id="cmp-${g}-machine-results-out"></div></div>`;
+    }
+    resultGroupCols.innerHTML = machineHTML;
+    for (const g of activeGroups) {
+      renderGroupMachines(`cmp-${g}-machine-results-out`, groupResults[g].machineResults, groupResults[g].avgBudo);
+    }
+  }
 
   // 保存用データ
   window._lastCmpData = {
     type: 'compare',
     store: document.getElementById('cmp-store').value,
     preset: key, presetName: params.name,
-    nameA, nameB,
-    totGA: gA.totG, totBIGA: gA.totBIG, totREGA: gA.totREG, totDiffA: gA.totDiff, avgBudoA: gA.avgBudo.toFixed(2),
-    totGB: gB.totG, totBIGB: gB.totBIG, totREGB: gB.totREG, totDiffB: gB.totDiff, avgBudoB: gB.avgBudo.toFixed(2),
     winnerText,
-    rowsA, rowsB,
+    activeGroups: [...activeGroups],
+    // 互換性のためA/Bも保持
+    nameA: activeGroups.includes('a') ? (document.getElementById('cmp-a-name')?.value || 'Aグループ') : '',
+    nameB: activeGroups.includes('b') ? (document.getElementById('cmp-b-name')?.value || 'Bグループ') : '',
+    avgBudoA: activeGroups.includes('a') ? groupResults['a']?.avgBudo.toFixed(2) : '—',
+    avgBudoB: activeGroups.includes('b') ? groupResults['b']?.avgBudo.toFixed(2) : '—',
+    totGA: activeGroups.includes('a') ? groupResults['a']?.totG : 0,
+    totGB: activeGroups.includes('b') ? groupResults['b']?.totG : 0,
+    rowsA: activeGroups.includes('a') ? groupRows['a'] : [],
+    rowsB: activeGroups.includes('b') ? groupRows['b'] : [],
+    machineCount: Object.values(groupRows).reduce((s, r) => s + r.length, 0),
+    totG: Object.values(groupResults).reduce((s, r) => s + r.totG, 0),
+    islName: activeGroups.map(g => document.getElementById(`cmp-${g}-name`)?.value || `${GROUP_COLORS[g].label}グループ`).join(' vs '),
+    avgBudo: activeGroups.map(g => '1/'+groupResults[g].avgBudo.toFixed(2)).join(' / '),
+    verdictText: winnerText,
   };
 
   document.getElementById('compare-result').style.display = 'block';
+
+  // 2グループの時のみ結論カード
+  if (activeGroups.length === 2) {
+    const [ga, gb] = activeGroups;
+    const nameA = document.getElementById(`cmp-${ga}-name`).value || `${GROUP_COLORS[ga].label}グループ`;
+    const nameB = document.getElementById(`cmp-${gb}-name`).value || `${GROUP_COLORS[gb].label}グループ`;
+    document.getElementById('cmp-conclusion-card').style.display = 'block';
+    renderCmpConclusion(groupResults[ga], groupResults[gb], nameA, nameB);
+  } else {
+    document.getElementById('cmp-conclusion-card').style.display = 'none';
+  }
+}
+
+function renderCmpConclusion(gA, gB, nameA, nameB) {
+  const el = document.getElementById('cmp-conclusion-text');
+  if (!el) return;
+
+  const budoA = gA.avgBudo, budoB = gB.avgBudo;
+  const bigRateA = gA.totG / (gA.totBIG || 1), bigRateB = gB.totG / (gB.totBIG || 1);
+  const regRateA = gA.totG / (gA.totREG || 1), regRateB = gB.totG / (gB.totREG || 1);
+  const diffA = gA.totDiff, diffB = gB.totDiff;
+
+  // 各指標の優劣（ぶどう・REGは低い方が良い、差枚は高い方が良い）
+  const budoWin = budoA < budoB ? 'A' : budoA > budoB ? 'B' : 'tie';
+  const bigWin  = bigRateA < bigRateB ? 'A' : bigRateA > bigRateB ? 'B' : 'tie';
+  const regWin  = regRateA < regRateB ? 'A' : regRateA > regRateB ? 'B' : 'tie';
+  const diffWin = diffA > diffB ? 'A' : diffA < diffB ? 'B' : 'tie';
+
+  const aWins = [budoWin, bigWin, regWin, diffWin].filter(v => v === 'A').length;
+  const bWins = [budoWin, bigWin, regWin, diffWin].filter(v => v === 'B').length;
+
+  const lead = aWins > bWins ? nameA : bWins > aWins ? nameB : null;
+  const trail = lead === nameA ? nameB : lead === nameB ? nameA : null;
+
+  let lines = [];
+
+  if (!lead) {
+    lines.push('両列が拮抗しています。ぶどう・REGの差が小さく、追加Gを重ねて判断。');
+  } else {
+    lines.push(`${lead}が優勢です。`);
+
+    // ぶどうが優勢列に有利か
+    const budoLeadWin = (lead === nameA && budoWin === 'A') || (lead === nameB && budoWin === 'B');
+    // REGが逆転している場合
+    const regLeadWin = (lead === nameA && regWin === 'A') || (lead === nameB && regWin === 'B');
+    // 差枚依存チェック（差枚で勝ってるがぶどう・REGが弱い）
+    const diffLeadWin = (lead === nameA && diffWin === 'A') || (lead === nameB && diffWin === 'B');
+
+    if (!budoLeadWin) {
+      lines.push(`ただしぶどう確率は${trail}が良く、設定示唆は割れています。`);
+    }
+    if (budoLeadWin && !regLeadWin) {
+      lines.push(`ただしREGは${trail}も悪くありません。差が縮まるか追加Gで確認。`);
+    }
+    if (diffLeadWin && !budoLeadWin && !regLeadWin) {
+      lines.push(`ぶどう・REGが弱めで差枚依存の優勢です。過信せず様子見が無難。`);
+    }
+  }
+
+  // 追加アクション提案
+  const minG = Math.min(gA.totG, gB.totG);
+  if (minG < 1000) {
+    lines.push('総G数が少なく信頼度は低いです。1000G以上で再判断を推奨。');
+  } else if (lead) {
+    lines.push(`引き続き${lead}を優先しつつ、500〜1000G追加して指標の安定を確認。`);
+  }
+
+  el.innerHTML = lines.map(l => `<div style="margin-bottom:4px;">・${l}</div>`).join('');
 }
 
 function saveCmpRecord() {
   if (!window._lastCmpData) { showToast('先にA/B比較を実行してください'); return; }
-  const history = loadHistory();
+  const history = loadHistory(STORAGE_KEY_COMPARE);
   const now = new Date();
   const jst = new Date(now.getTime() + 9 * 3600 * 1000);
   const dateStr = jst.toISOString().slice(0, 10);
@@ -1625,8 +2050,7 @@ function saveCmpRecord() {
   };
   const cutoff = new Date(jst.getTime() - 7 * 24 * 3600 * 1000).toISOString().slice(0, 10);
   history.unshift(record);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(history.filter(r => r.date >= cutoff).slice(0, 100)));
-  renderHistory();
+  localStorage.setItem(STORAGE_KEY_COMPARE, JSON.stringify(history.filter(r => r.date >= cutoff).slice(0, 100)));
   renderCmpHistory();
   showToast('💾 保存しました');
   const btn = document.getElementById('cmp-save-btn');
@@ -1641,11 +2065,60 @@ function saveCmpRecord() {
 }
 
 function renderCmpHistory() {
-  const history = loadHistory();
+  const history = loadHistory(STORAGE_KEY_COMPARE);
   const el = document.getElementById('cmp-history-list');
   if (!el) return;
   el.innerHTML = history.length
     ? history.map((r, i) => historyItemHTML(r, i)).join('')
+    : '<div class="history-empty">保存された記録はありません</div>';
+}
+
+function saveSingleRecord() {
+  if (!window._lastSingleData) { showToast('先に設定を推定してください'); return; }
+  const history = loadHistory(STORAGE_KEY_SINGLE);
+  const now = new Date();
+  const jst = new Date(now.getTime() + 9 * 3600 * 1000);
+  const dateStr = jst.toISOString().slice(0, 10);
+  const timeStr = jst.toISOString().slice(11, 16);
+  const yaku = window._yakuCounts || {};
+  const record = {
+    ...window._lastSingleData,
+    store: document.getElementById('single-store').value,
+    corner: document.getElementById('single-corner').value,
+    memo: document.getElementById('single-memo').value,
+    date: dateStr, time: timeStr, savedAt: jst.toISOString(),
+    yakuBudo: yaku.budo || 0,
+    yakuCherry: yaku.cherry || 0,
+    yakuSoloBig: yaku['solo-big'] || 0,
+    yakuSoloReg: yaku['solo-reg'] || 0,
+    yakuCBig: yaku.cbig || 0,
+    yakuCReg: yaku.creg || 0,
+  };
+  history.unshift(record);
+  const cutoff = new Date(jst.getTime() - 7 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  localStorage.setItem(STORAGE_KEY_SINGLE, JSON.stringify(history.filter(r => r.date >= cutoff).slice(0, 100)));
+  saveSuggestion('store', record.store);
+  saveSuggestion('corner', record.corner);
+  saveSuggestion('memo', record.memo);
+  renderDatalist('dl-store', 'store');
+  renderDatalist('dl-corner', 'corner');
+  renderDatalist('dl-memo', 'memo');
+  renderSingleHistory();
+  showToast('💾 保存しました');
+}
+
+function renderSingleHistory() {
+  const history = loadHistory(STORAGE_KEY_SINGLE);
+  const el = document.getElementById('single-history-list');
+  if (!el) return;
+  el.innerHTML = history.length
+    ? history.map((r, i) => `
+      <div class="history-item">
+        <div class="history-date">${r.date} ${r.time||''} — ${r.presetName||r.preset} <span style="display:inline-block;background:#1a2a0a;border:1px solid #6aff6a;color:#6aff6a;font-size:0.7rem;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:6px;">🎰 単台</span></div>
+        <div class="history-title">${r.store||'店舗名なし'} / 台${r.machineNum||'—'} ${r.corner ? '| '+r.corner : ''}</div>
+        <div class="history-summary">ぶどう 1/${r.budoProb} | 最有力設定${r.topSetting||'—'} | ${r.settingRange} | ${r.totG.toLocaleString()}G / B${r.big} R${r.reg} / 差${r.diff}枚 ${r.memo ? '| '+r.memo : ''}</div>
+        ${(r.yakuBudo||r.yakuCherry||r.yakuSoloBig||r.yakuSoloReg||r.yakuCBig||r.yakuCReg) ? `<div class="history-summary" style="color:#666;margin-top:2px;">🎰 ぶどう${r.yakuBudo||0} / チェリー${r.yakuCherry||0} / 単独B${r.yakuSoloBig||0} / 単独R${r.yakuSoloReg||0} / チェB${r.yakuCBig||0} / チェR${r.yakuCReg||0}</div>` : ''}
+      </div>`).join('')
     : '<div class="history-empty">保存された記録はありません</div>';
 }
 
@@ -1654,7 +2127,7 @@ function showToast(msg) {
   if (!t) {
     t = document.createElement('div');
     t.id = 'toast-msg';
-    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#f0c040;color:#12121f;font-weight:700;padding:10px 20px;border-radius:10px;z-index:9999;font-size:0.9rem;transition:opacity .4s;';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#f0c040;color:#0a0a0f;font-weight:700;padding:10px 20px;border-radius:10px;z-index:9999;font-size:0.9rem;transition:opacity .4s;';
     document.body.appendChild(t);
   }
   t.textContent = msg;
@@ -1662,32 +2135,95 @@ function showToast(msg) {
   setTimeout(() => { t.style.opacity = '0'; }, 2000);
 }
 
-function exportCSV() {
-  const history = loadHistory();
+function exportCSV(type) {
+  const keyMap = { single: STORAGE_KEY_SINGLE, island: STORAGE_KEY_ISLAND, compare: STORAGE_KEY_COMPARE };
+  const key = keyMap[type] || STORAGE_KEY_ISLAND;
+  const history = loadHistory(key);
   if (!history.length) { showToast('エクスポートするデータがありません'); return; }
-  const header = ['日付', '時刻', '店舗', '島名', '機種', '台数', '合計G', '合算ぶどう', '判定', '設定レンジ', '差枚合計', 'メモ'];
-  const rows = history.map(r => [
-    r.date, r.time||'', r.store||'', r.islName||'', r.presetName||r.preset,
-    r.machineCount, r.totG, '1/'+r.avgBudo, r.verdictText, r.settingRange,
-    r.totDiff, r.memo||''
-  ]);
-  const csv = [header, ...rows].map(row => row.map(v => `"${v}"`).join(',')).join('\n');
+  let csv, filename;
+  if (type === 'single') {
+    const header = ['日付', '時刻', '店舗', 'コーナー', '台番', '機種', '総G', 'BIG', 'REG', '差枚', 'ぶどう確率', '最有力設定', '設定レンジ', 'メモ', 'grape', 'cherry', 'single_big', 'single_reg', 'cherry_big', 'cherry_reg'];
+    const rows = history.map(r => [
+      r.date, r.time||'', r.store||'', r.corner||'', r.machineNum||'', r.presetName||r.preset,
+      r.totG, r.big, r.reg, r.diff, '1/'+r.budoProb, r.topSetting||'', r.settingRange, r.memo||'',
+      r.yakuBudo||0, r.yakuCherry||0, r.yakuSoloBig||0, r.yakuSoloReg||0, r.yakuCBig||0, r.yakuCReg||0
+    ]);
+    csv = [header, ...rows].map(row => row.map(v => `"${v}"`).join(',')).join('\n');
+    filename = 'juggler_single_history.csv';
+  } else {
+    const header = ['日付', '時刻', '店舗', '島名', '機種', '台数', '合計G', '合算ぶどう', '判定', '設定レンジ', '差枚合計', 'メモ'];
+    const rows = history.map(r => [
+      r.date, r.time||'', r.store||'', r.islName||'', r.presetName||r.preset,
+      r.machineCount||'', r.totG, r.avgBudo ? '1/'+r.avgBudo : '', r.verdictText||'', r.settingRange||'',
+      r.totDiff||'', r.memo||''
+    ]);
+    csv = [header, ...rows].map(row => row.map(v => `"${v}"`).join(',')).join('\n');
+    filename = type === 'compare' ? 'juggler_compare_history.csv' : 'juggler_island_history.csv';
+  }
   const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'juggler_island_history.csv';
+  a.download = filename;
   a.click();
+}
+
+// ===== 差枚±ボタン =====
+function toggleDiffSign(inputEl, btnEl) {
+  if (typeof inputEl === 'string') inputEl = document.getElementById(inputEl);
+  if (typeof btnEl === 'string') btnEl = document.getElementById(btnEl);
+  const isMinus = btnEl.classList.contains('minus');
+  if (isMinus) {
+    btnEl.classList.replace('minus', 'plus');
+    btnEl.textContent = '＋';
+  } else {
+    btnEl.classList.replace('plus', 'minus');
+    btnEl.textContent = '－';
+  }
+}
+
+function getDiffValue(inputEl, btnEl) {
+  const val = Math.abs(parseFloat(inputEl.value) || 0);
+  return btnEl.classList.contains('minus') ? -val : val;
+}
+
+// ===== 入力候補（datalist）管理 =====
+const SUGGEST_KEYS = { store: 'jgl_suggest_store', corner: 'jgl_suggest_corner', memo: 'jgl_suggest_memo' };
+
+function loadSuggestions(key) {
+  try { return JSON.parse(localStorage.getItem(SUGGEST_KEYS[key]) || '[]'); } catch(e) { return []; }
+}
+
+function saveSuggestion(key, value) {
+  if (!value || !value.trim()) return;
+  const list = loadSuggestions(key).filter(v => v !== value.trim());
+  list.unshift(value.trim());
+  localStorage.setItem(SUGGEST_KEYS[key], JSON.stringify(list.slice(0, 10)));
+}
+
+function renderDatalist(dlId, key) {
+  const dl = document.getElementById(dlId);
+  if (!dl) return;
+  dl.innerHTML = loadSuggestions(key).map(v => `<option value="${v}">`).join('');
+}
+
+function initSuggestions() {
+  renderDatalist('dl-store', 'store');
+  renderDatalist('dl-corner', 'corner');
+  renderDatalist('dl-memo', 'memo');
 }
 
 // 初期化
 (function init() {
   for (let i = 0; i < 3; i++) addIslandRow();
   applyIslandPreset();
+  renderGroupInputs();
   for (let i = 0; i < 2; i++) addCmpRow('a');
   for (let i = 0; i < 2; i++) addCmpRow('b');
   applyCmpPreset();
+  renderSingleHistory();
   renderHistory();
   renderCmpHistory();
+  initSuggestions();
   const cmpSaveBtn = document.getElementById('cmp-save-btn');
   if (cmpSaveBtn) {
     cmpSaveBtn.addEventListener('click', saveCmpRecord);
@@ -1697,7 +2233,7 @@ function exportCSV() {
 </script>
 
 <div class="container" style="padding-top:0;padding-bottom:60px;">
-  <p style="font-size:0.72rem;color:#444;line-height:1.7;border-top:1px solid #2a2a4a;padding-top:16px;margin-top:8px;">
+  <p style="font-size:0.72rem;color:#444;line-height:1.7;border-top:1px solid #1e1e2a;padding-top:16px;margin-top:8px;">
     ※ ぶどう確率は、総回転数・BIG/REG回数・差枚から逆算した参考値です。<br><br>【免責事項】本ツールは個人的な参考用途のシミュレーターです。表示される設定推定・ぶどう確率・期待値はすべて統計的な目安であり、実際の設定・収支・勝敗を保証するものではありません。スロット機器の仕様・設定は各メーカーの公式情報を参照してください。本ツールの使用による損害・損失について一切の責任を負いません。
   </p>
 </div>
