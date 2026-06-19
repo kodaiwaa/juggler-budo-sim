@@ -186,10 +186,14 @@
   .machine-result-row .m-label { min-width: 40px; color: #aaa; font-weight: 600; }
   .machine-result-row .m-budo  { color: #f0c040; font-family: monospace; min-width: 60px; }
   .machine-result-row .m-bonus { color: #888; font-size: 0.75rem; min-width: 80px; }
+  .machine-result-row .m-setting { color: #c8a020; font-size: 0.74rem; font-weight: 700; min-width: 58px; }
   .badge { font-size: 0.74rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
   .badge-strong { background: #1a3a1a; color: #6aff6a; }
   .badge-avg    { background: #16162a; color: #888; }
   .badge-weak   { background: #3a1a1a; color: #ff8a8a; }
+  .setting-summary-main { display: block; color: #f0c040; line-height: 1.35; }
+  .setting-summary-sub { display: block; color: #888; font-size: 0.68rem; line-height: 1.35; margin-top: 2px; }
+  .score-note { color: #666; font-size: 0.72rem; line-height: 1.55; margin-top: 10px; }
 
   /* 履歴 */
   .history-list { max-height: 360px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
@@ -618,19 +622,20 @@
         <div class="island-result-grid">
           <div class="stat-box"><div class="stat-label">合算確率</div><div class="stat-value">1/<span id="isl-total-sum">—</span></div></div>
           <div class="stat-box"><div class="stat-label">差枚合計</div><div class="stat-value" id="isl-total-diff" style="font-size:0.9rem;">—</div></div>
-          <div class="stat-box"><div class="stat-label">設定レンジ</div><div class="stat-value" id="isl-setting-range" style="font-size:0.78rem;">—</div></div>
+          <div class="stat-box"><div class="stat-label">総合/ぶどう</div><div class="stat-value" id="isl-setting-range" style="font-size:0.78rem;">—</div></div>
           <div class="stat-box"><div class="stat-label">有効台数</div><div class="stat-value" id="isl-machine-count">—</div></div>
           <div class="stat-box" style="grid-column: 1 / -1;"><div class="stat-label">信頼度</div><div class="stat-sub" id="isl-conf">—</div></div>
           <div class="stat-box"><div class="stat-label">BIG（設定4比）</div><div class="stat-sub" id="isl-big-diff">—</div></div>
           <div class="stat-box"><div class="stat-label">REG（設定4比）</div><div class="stat-sub" id="isl-reg-diff">—</div></div>
         </div>
+        <div class="score-note" id="island-score-note"></div>
         <div class="bar-chart" id="island-bar-chart" style="margin-top:12px;"></div>
       </div>
 
       <div class="card">
         <h2>台別結果</h2>
         <div id="island-machine-results"></div>
-        <p style="font-size:0.74rem;color:#555;margin-top:10px;">🟢 島平均より高設定寄り（ぶどう確率が低い）　🔴 低設定寄り　⚪ 平均前後</p>
+        <p style="font-size:0.74rem;color:#555;margin-top:10px;">🟢 島平均より高設定寄り（ぶどう確率が低い）　🔴 低設定寄り　⚪ 平均前後。総合はBIG/REG込み、ぶどう読みは差枚逆算の参考値です。</p>
       </div>
 
       <button class="btn btn-save" style="margin-top:4px;" onclick="saveIslandRecord()">💾 この結果を保存</button>
@@ -749,6 +754,8 @@
 </div>
 
 <script>
+const BUDO_SCORE_WEIGHT = 0.8;
+
 const PRESETS = {
   myj: {
     name: 'マイジャグラーV', cbigVerified: true, payoutVerified: true,
@@ -968,8 +975,8 @@ function settingScores(P, BIG, REG, budoProb, theory, cBIG, cREG) {
       if (cREG !== null) logL += logPoisson(cREG, lambdaCREG);
     }
 
-    // ぶどうは差枚逆算値 → 重み0.5
-    if (budoProb) logL += 0.5 * logPoisson(Math.round(budoCount), lambdaBudo);
+    // ぶどうは差枚逆算値なので過信しないが、BIG/REGの上振れだけに寄らないよう重みを上げる
+    if (budoProb) logL += BUDO_SCORE_WEIGHT * logPoisson(Math.round(budoCount), lambdaBudo);
 
     scores.push(logL);
   }
@@ -1033,6 +1040,74 @@ function settingRange(probs) {
   if (included.length === 0) return `設定${probs.indexOf(Math.max(...probs)) + 1}寄り`;
   if (included.length === 1) return `設定${included[0]}寄り`;
   return `設定${included[0]}〜${included[included.length - 1]}寄り`;
+}
+
+function topSettingNumber(probs) {
+  if (!probs || !probs.length) return null;
+  return probs.indexOf(Math.max(...probs)) + 1;
+}
+
+function budoRead(budoProb, theory) {
+  if (!theory || !theory.budo || !budoProb || !Number.isFinite(budoProb)) {
+    return { text: 'ぶどう読み—', main: 'ぶどう読み—', cls: 'badge-avg', level: 'unknown' };
+  }
+
+  const vals = theory.budo;
+  const low = vals[0];
+  const high = vals[vals.length - 1];
+  const spread = Math.max(0.1, low - high);
+  const veryLowMargin = Math.max(0.15, spread * 0.12);
+  const lowMargin = Math.max(0.05, spread * 0.05);
+  const highMargin = Math.max(0.04, spread * 0.05);
+
+  if (budoProb > low * 1.5 || budoProb < high * 0.75) {
+    return { text: 'ぶどう 算出注意', main: 'ぶどう算出注意', cls: 'badge-weak', level: 'caution' };
+  }
+  if (budoProb > low + veryLowMargin) {
+    return { text: 'ぶどう 低設定域以下', main: 'ぶどう低設定域以下', cls: 'badge-weak', level: 'very-low' };
+  }
+  if (budoProb > low + lowMargin) {
+    return { text: 'ぶどう 低設定寄り', main: 'ぶどう低設定寄り', cls: 'badge-weak', level: 'low' };
+  }
+  if (budoProb <= high + highMargin) {
+    return { text: 'ぶどう 設6近辺', main: 'ぶどう設定6近辺', cls: 'badge-strong', level: 'high' };
+  }
+  if (budoProb <= vals[4] + highMargin) {
+    return { text: 'ぶどう 高設定寄り', main: 'ぶどう高設定寄り', cls: 'badge-strong', level: 'high' };
+  }
+  if (budoProb <= vals[2] + highMargin) {
+    return { text: 'ぶどう 中間以上', main: 'ぶどう中間以上', cls: 'badge-avg', level: 'mid' };
+  }
+  return { text: 'ぶどう 低〜中間', main: 'ぶどう低〜中間', cls: 'badge-avg', level: 'low-mid' };
+}
+
+function settingSummary(probs, budoProb, theory) {
+  if (!probs) return { main: '—', sub: '' };
+  const total = settingRange(probs);
+  const read = budoRead(budoProb, theory);
+  const warnLevels = ['caution', 'very-low', 'low'];
+  if (warnLevels.includes(read.level)) {
+    return { main: read.main, sub: `B/R総合は${total}` };
+  }
+  return { main: total, sub: read.main };
+}
+
+function settingSummaryHTML(probs, budoProb, theory) {
+  const s = settingSummary(probs, budoProb, theory);
+  const sub = s.sub ? `<span class="setting-summary-sub">${s.sub}</span>` : '';
+  return `<span class="setting-summary-main">${s.main}</span>${sub}`;
+}
+
+function settingSummaryText(probs, budoProb, theory) {
+  const s = settingSummary(probs, budoProb, theory);
+  return s.sub ? `${s.main}（${s.sub}）` : s.main;
+}
+
+function machineSettingHTML(probs, budoProb, theory) {
+  const top = topSettingNumber(probs);
+  const read = budoRead(budoProb, theory);
+  const total = top ? `<span class="m-setting">推定 設${top}</span>` : '';
+  return `${total}<span class="badge ${read.cls}">${read.text}</span>`;
 }
 
 function calculate() {
@@ -1417,7 +1492,8 @@ function calcIsland() {
   // 台別ぶどう枚数を逆算し、合算して島全体のぶどう確率を求める
   const machineResults = rows.map(row => {
     const r = calcBudo(row.g, row.big, row.reg, row.diff, params);
-    return { ...row, budoMed: r.budoMed, budoCnt: r.budoCnt, budoProb: r.budoProb };
+    const settingProbs = settingScores(row.g, row.big, row.reg, r.budoProb, params.theory, row.cbig, row.creg);
+    return { ...row, budoMed: r.budoMed, budoCnt: r.budoCnt, budoProb: r.budoProb, settingProbs };
   });
 
   const totG    = rows.reduce((s, r) => s + r.g,   0);
@@ -1505,7 +1581,12 @@ function calcIsland() {
   }
 
   if (totProbs) {
-    document.getElementById('isl-setting-range').textContent = settingRange(totProbs);
+    document.getElementById('isl-setting-range').innerHTML = settingSummaryHTML(totProbs, avgBudo, params.theory);
+    const scoreNote = document.getElementById('island-score-note');
+    if (scoreNote) {
+      const read = budoRead(avgBudo, params.theory);
+      scoreNote.textContent = `B/R総合スコア: ${settingRange(totProbs)}。ぶどう読み: ${read.main}。`;
+    }
     // バーグラフ
     const chart = document.getElementById('island-bar-chart');
     chart.innerHTML = '';
@@ -1525,6 +1606,8 @@ function calcIsland() {
     });
   } else {
     document.getElementById('isl-setting-range').textContent = '—';
+    const scoreNote = document.getElementById('island-score-note');
+    if (scoreNote) scoreNote.textContent = '';
     document.getElementById('island-bar-chart').innerHTML = '';
   }
 
@@ -1544,6 +1627,7 @@ function calcIsland() {
       <span class="m-label">${m.label}</span>
       <span class="m-budo">1/${m.budoProb.toFixed(2)}</span>
       <span class="m-bonus">${m.g.toLocaleString()}G / BIG${m.big} REG${m.reg}</span>
+      ${machineSettingHTML(m.settingProbs, m.budoProb, params.theory)}
       <span class="badge ${badgeCls}">${badge}</span>
     `;
     mrDiv.appendChild(row);
@@ -1560,7 +1644,7 @@ function calcIsland() {
     totG, totBIG, totREG, totDiff,
     avgBudo: avgBudo.toFixed(2),
     verdictText,
-    settingRange: totProbs ? settingRange(totProbs) : '—',
+    settingRange: totProbs ? settingSummaryText(totProbs, avgBudo, params.theory) : '—',
     machineCount: rows.length,
   };
 
@@ -1767,7 +1851,8 @@ function getCmpRows(group) {
 function calcGroup(rows, params) {
   const machineResults = rows.map(row => {
     const r = calcBudo(row.g, row.big, row.reg, row.diff, params);
-    return { ...row, budoCnt: r.budoCnt, budoProb: r.budoProb };
+    const settingProbs = settingScores(row.g, row.big, row.reg, r.budoProb, params.theory, null, null);
+    return { ...row, budoCnt: r.budoCnt, budoProb: r.budoProb, settingProbs };
   });
   const totG    = rows.reduce((s, r) => s + r.g,   0);
   const totBIG  = rows.reduce((s, r) => s + r.big,  0);
@@ -1779,7 +1864,7 @@ function calcGroup(rows, params) {
   return { totG, totBIG, totREG, totDiff, avgBudo, probs, machineResults };
 }
 
-function renderGroupMachines(divId, machineResults, avgBudo) {
+function renderGroupMachines(divId, machineResults, avgBudo, theory) {
   const div = document.getElementById(divId);
   div.innerHTML = '';
   machineResults.forEach(m => {
@@ -1795,6 +1880,7 @@ function renderGroupMachines(divId, machineResults, avgBudo) {
       <span class="m-label">${m.label}</span>
       <span class="m-budo">1/${m.budoProb.toFixed(2)}</span>
       <span class="m-bonus" style="font-size:0.72rem;">${m.g.toLocaleString()}G B${m.big} R${m.reg}</span>
+      ${machineSettingHTML(m.settingProbs, m.budoProb, theory)}
       <span class="badge ${badgeCls}">${badge}</span>
     `;
     div.appendChild(row);
@@ -1880,7 +1966,7 @@ function calcCompare() {
     const keyMetrics = [
       { label: '合算ぶどう', a: '1/'+gA.avgBudo.toFixed(2), b: '1/'+gB.avgBudo.toFixed(2), better: gA.avgBudo < gB.avgBudo ? 'a' : gA.avgBudo > gB.avgBudo ? 'b' : null },
       { label: '差枚合計', a: (gA.totDiff>=0?'+':'')+gA.totDiff.toLocaleString()+'枚', b: (gB.totDiff>=0?'+':'')+gB.totDiff.toLocaleString()+'枚', better: gA.totDiff > gB.totDiff ? 'a' : gA.totDiff < gB.totDiff ? 'b' : null },
-      { label: '設定レンジ', a: gA.probs ? settingRange(gA.probs) : '—', b: gB.probs ? settingRange(gB.probs) : '—', better: null },
+      { label: '総合/ぶどう', a: gA.probs ? settingSummaryText(gA.probs, gA.avgBudo, params.theory) : '—', b: gB.probs ? settingSummaryText(gB.probs, gB.avgBudo, params.theory) : '—', better: null },
     ];
     const detailMetrics = [
       { label: '合計G数', a: gA.totG.toLocaleString(), b: gB.totG.toLocaleString(), better: null },
@@ -1913,7 +1999,7 @@ function calcCompare() {
       { label: 'BIG確率', fn: g => groupResults[g].totBIG > 0 ? '1/'+(groupResults[g].totG/groupResults[g].totBIG).toFixed(1) : '∞' },
       { label: 'REG確率', fn: g => groupResults[g].totREG > 0 ? '1/'+(groupResults[g].totG/groupResults[g].totREG).toFixed(1) : '∞' },
       { label: '差枚合計', fn: g => (groupResults[g].totDiff>=0?'+':'')+groupResults[g].totDiff.toLocaleString()+'枚' },
-      { label: '設定レンジ', fn: g => groupResults[g].probs ? settingRange(groupResults[g].probs) : '—' },
+      { label: '総合/ぶどう', fn: g => groupResults[g].probs ? settingSummaryText(groupResults[g].probs, groupResults[g].avgBudo, params.theory) : '—' },
       { label: '台数', fn: g => groupRows[g].length+'台' },
     ];
     const tableRows = rowDefs.map(rd => {
@@ -1940,7 +2026,7 @@ function calcCompare() {
     }
     resultGroupCols.innerHTML = machineHTML;
     for (const g of activeGroups) {
-      renderGroupMachines(`cmp-${g}-machine-results-out`, groupResults[g].machineResults, groupResults[g].avgBudo);
+      renderGroupMachines(`cmp-${g}-machine-results-out`, groupResults[g].machineResults, groupResults[g].avgBudo, params.theory);
     }
   }
 
@@ -2159,7 +2245,7 @@ function exportCSV(type) {
     csv = [header, ...rows].map(row => row.map(v => `"${v}"`).join(',')).join('\n');
     filename = 'juggler_single_history.csv';
   } else {
-    const header = ['日付', '時刻', '店舗', '島名', '機種', '台数', '合計G', '合算ぶどう', '判定', '設定レンジ', '差枚合計', 'メモ'];
+    const header = ['日付', '時刻', '店舗', '島名', '機種', '台数', '合計G', '合算ぶどう', '判定', '総合/ぶどう', '差枚合計', 'メモ'];
     const rows = history.map(r => [
       r.date, r.time||'', r.store||'', r.islName||'', r.presetName||r.preset,
       r.machineCount||'', r.totG, r.avgBudo ? '1/'+r.avgBudo : '', r.verdictText||'', r.settingRange||'',
