@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "juggler",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-p", "3460", "."],
+      "port": 3460
+    }
+  ]
+}

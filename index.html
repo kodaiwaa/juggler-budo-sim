@@ -279,19 +279,24 @@
   .island-table .diff-wrap { display: flex; align-items: stretch; gap: 0; }
   .island-table .diff-sign-btn { flex: 0 0 22px; min-width: 0; padding: 0; border-radius: 4px 0 0 4px; border-right: none; border-width: 1px; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; }
   .island-table .diff-wrap input { flex: 1; min-width: 0; border-radius: 0 4px 4px 0 !important; border-left: none !important; padding: 5px 3px !important; }
+  .icon-sm { width: 20px; height: 20px; vertical-align: middle; border-radius: 4px; margin-right: 4px; object-fit: contain; }
+  .icon-md { width: 26px; height: 26px; vertical-align: middle; border-radius: 5px; margin-right: 5px; object-fit: contain; }
+  .icon-lg { width: 34px; height: 34px; vertical-align: middle; border-radius: 6px; margin-right: 6px; object-fit: contain; }
+  .icon-tab { width: 22px; height: 22px; vertical-align: middle; border-radius: 4px; margin-right: 5px; object-fit: contain; }
+  label .icon-sm { margin-right: 5px; }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>🎰 ぶどう確率シミュレータ</h1>
+  <h1><img src="icons/B_04.png" class="icon-lg"> ぶどう確率シミュレータ</h1>
   <p class="subtitle">差枚逆算式 — 設定推定付き</p>
-  <p style="text-align:center;font-size:0.78rem;margin-bottom:10px;"><a href="https://note.com/nlp_mm/n/nb5bd54aa1170" target="_blank" rel="noopener" style="color:#f0c040;text-decoration:none;" onclick="gtag('event','note_click',{event_category:'outbound',event_label:'budo_note_header'});">📖 ぶどう確率の正しい読み方</a></p>
+  <p style="text-align:center;font-size:0.78rem;margin-bottom:10px;"><a href="https://note.com/nlp_mm/n/nb5bd54aa1170" target="_blank" rel="noopener" style="color:#f0c040;text-decoration:none;" onclick="gtag('event','note_click',{event_category:'outbound',event_label:'budo_note_header'});"><img src="icons/B_01.png" class="icon-sm"> ぶどう確率の正しい読み方</a></p>
 
   <!-- モード切り替えタブ -->
   <div class="mode-tabs">
-    <button class="mode-tab active" data-mode="single">🎰 単台</button>
-    <button class="mode-tab" data-mode="island">🏝 島</button>
-    <button class="mode-tab" data-mode="compare">⚖️ 列比較</button>
+    <button class="mode-tab active" data-mode="single"><img src="icons/B_04.png" class="icon-tab">単台</button>
+    <button class="mode-tab" data-mode="island"><img src="icons/B_02.png" class="icon-tab">島</button>
+    <button class="mode-tab" data-mode="compare"><img src="icons/B_03.png" class="icon-tab">列比較</button>
   </div>
 
   <!-- 単台モード -->
@@ -299,7 +304,7 @@
 
   <!-- 機種プリセット -->
   <div class="card">
-    <h2>機種 / セッション情報</h2>
+    <h2><img src="icons/B_04.png" class="icon-sm">機種 / セッション情報</h2>
     <div class="grid2" style="margin-bottom:10px;">
       <div>
         <label>店舗名</label>
@@ -358,26 +363,26 @@
 
   <!-- データ入力 -->
   <div class="card">
-    <h2>台データ入力</h2>
+    <h2><img src="icons/B_06.png" class="icon-sm">台データ入力</h2>
     <div style="margin-bottom:10px;">
       <label>台番号 <span class="hint">（任意）</span></label>
       <input type="text" inputmode="numeric" id="inp-machine-num" placeholder="例: 301" style="width:100%;max-width:160px;display:block;margin-top:4px;">
     </div>
     <div class="grid4">
       <div>
-        <label>総G数 <span class="hint" style="font-size:0.72rem;">(通常+B込)</span></label>
+        <label><img src="icons/B_06.png" class="icon-sm">総G数 <span class="hint" style="font-size:0.72rem;">(通常+B込)</span></label>
         <input type="number" inputmode="numeric" id="inp-p" placeholder="例: 3000" min="1">
       </div>
       <div>
-        <label>BIG回数</label>
+        <label><img src="icons/B_09.png" class="icon-sm">BIG回数</label>
         <input type="number" inputmode="numeric" id="inp-big" placeholder="例: 12" min="0">
       </div>
       <div>
-        <label>REG回数</label>
+        <label><img src="icons/B_10.png" class="icon-sm">REG回数</label>
         <input type="number" inputmode="numeric" id="inp-reg" placeholder="例: 15" min="0">
       </div>
       <div>
-        <label>差枚数</label>
+        <label><img src="icons/B_11.png" class="icon-sm">差枚数</label>
         <div class="diff-wrap">
           <button class="diff-sign-btn plus" id="diff-sign-btn" onclick="toggleDiffSign('inp-d','diff-sign-btn')">＋</button>
           <input type="text" inputmode="numeric" id="inp-d" placeholder="0">
@@ -396,7 +401,7 @@
     <div class="yakucount-wrap" id="yakucount-wrap">
       <!-- ヘッダー（常時表示） -->
       <div class="yakucount-header">
-        <span class="yakucount-title">🎰 子役カウンター</span>
+        <span class="yakucount-title"><img src="icons/A_22.png" class="icon-sm">子役カウンター</span>
         <div class="yakucount-mode-btns">
           <button class="ymode-btn active" data-mode="none">数えない</button>
           <button class="ymode-btn" data-mode="budo">ぶどうのみ</button>
@@ -408,7 +413,7 @@
       <div class="yakucount-body" id="yakucount-body" style="display:none;">
         <!-- ぶどうのみ・全部 共通 -->
         <div class="yaku-row" id="yrow-budo">
-          <span class="yaku-name">🍇 ぶどう</span>
+          <span class="yaku-name"><img src="icons/B_01.png" class="icon-sm">ぶどう</span>
           <button class="yaku-btn" id="budo-count-btn">+1</button>
           <button class="yaku-dec-btn" data-dec="budo">-1</button>
           <span class="yaku-val"><input type="number" class="yaku-count-input" id="budo-count-val" value="0" min="0" inputmode="numeric"> 回</span>
@@ -424,14 +429,14 @@
             <button class="yaku-reset" data-target="cherry">R</button>
           </div>
           <div class="yaku-row" id="yrow-solo-big">
-            <span class="yaku-name">⭐ 単独BIG</span>
+            <span class="yaku-name"><img src="icons/B_09.png" class="icon-sm">単独BIG</span>
             <button class="yaku-btn" id="solo-big-count-btn">+1</button>
             <button class="yaku-dec-btn" data-dec="solo-big">-1</button>
             <span class="yaku-val"><input type="number" class="yaku-count-input" id="solo-big-count-val" value="0" min="0" inputmode="numeric"> 回</span>
             <button class="yaku-reset" data-target="solo-big">R</button>
           </div>
           <div class="yaku-row" id="yrow-solo-reg">
-            <span class="yaku-name">⭐ 単独REG</span>
+            <span class="yaku-name"><img src="icons/B_10.png" class="icon-sm">単独REG</span>
             <button class="yaku-btn" id="solo-reg-count-btn">+1</button>
             <button class="yaku-dec-btn" data-dec="solo-reg">-1</button>
             <span class="yaku-val"><input type="number" class="yaku-count-input" id="solo-reg-count-val" value="0" min="0" inputmode="numeric"> 回</span>
@@ -479,7 +484,7 @@
 
     <!-- 根拠数字 -->
     <div class="card">
-      <h2>根拠となる確率</h2>
+      <h2><img src="icons/A_19.png" class="icon-sm">根拠となる確率</h2>
       <div class="stats-grid">
         <div class="stat-box">
           <div class="stat-label">ぶどう確率</div>
@@ -506,7 +511,7 @@
 
     <!-- スペック情報テーブル -->
     <div class="card" id="spec-card">
-      <h2>設定別 理論値</h2>
+      <h2><img src="icons/A_02.png" class="icon-sm">設定別 理論値</h2>
       <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
       <table class="spec-table" id="spec-table">
         <thead>
@@ -558,7 +563,7 @@
   <div id="mode-island" class="mode-section">
 
     <div class="card">
-      <h2>島情報</h2>
+      <h2><img src="icons/B_02.png" class="icon-sm">島情報</h2>
       <div class="grid2">
         <div>
           <label>店舗名</label>
@@ -601,7 +606,7 @@
     </div>
 
     <div class="card">
-      <h2>台データ入力 <span style="font-size:0.75rem;color:#888;font-weight:400;">（同一機種・同一スペックで集計）</span></h2>
+      <h2><img src="icons/B_06.png" class="icon-sm">台データ入力 <span style="font-size:0.75rem;color:#888;font-weight:400;">（同一機種・同一スペックで集計）</span></h2>
       <div class="island-table-wrap">
         <table class="island-table" id="island-table">
           <thead>
@@ -634,7 +639,7 @@
       </div>
 
       <div class="card">
-        <h2>島合算</h2>
+        <h2><img src="icons/B_13.png" class="icon-sm">島合算</h2>
         <div class="island-result-grid">
           <div class="stat-box"><div class="stat-label">合計G数</div><div class="stat-value" id="isl-total-g">—</div></div>
           <div class="stat-box"><div class="stat-label">合算ぶどう</div><div class="stat-value">1/<span id="isl-total-budo">—</span></div><div class="stat-sub" id="isl-budo-judge">—</div></div>
@@ -654,7 +659,7 @@
       </div>
 
       <div class="card">
-        <h2>台別結果</h2>
+        <h2><img src="icons/A_02.png" class="icon-sm">台別結果</h2>
         <div id="island-machine-results"></div>
         <p style="font-size:0.74rem;color:#555;margin-top:10px;">🟢 島平均より高設定寄り（ぶどう確率が低い）　🔴 低設定寄り　⚪ 平均前後</p>
       </div>
@@ -663,7 +668,7 @@
     </div>
 
     <div class="card" style="margin-top:14px;">
-      <h2>過去の記録</h2>
+      <h2><img src="icons/B_14.png" class="icon-sm">過去の記録</h2>
       <div class="history-list" id="history-list"><div class="history-empty">保存された記録はありません</div></div>
       <button class="csv-btn" onclick="exportCSV('island')">📥 CSVエクスポート</button>
     </div>
@@ -675,7 +680,7 @@
 
     <!-- 共通設定 -->
     <div class="card">
-      <h2>比較設定</h2>
+      <h2><img src="icons/B_03.png" class="icon-sm">比較設定</h2>
       <div class="grid2" style="margin-bottom:10px;">
         <div>
           <label>店舗名</label>
@@ -728,7 +733,7 @@
 
       <!-- A/B サマリー比較 -->
       <div class="card" style="margin-top:14px;">
-        <h2>A / B 比較</h2>
+        <h2><img src="icons/A_20.png" class="icon-sm">A / B 比較</h2>
         <div class="compare-grid" style="margin-bottom:8px;">
           <div class="cmp-a" style="font-size:0.72rem;color:#4a9eff;" id="cmp-a-title">Aグループ</div>
           <div class="cmp-label"></div>
@@ -763,7 +768,7 @@
 
     <!-- 履歴（島モードと共用） -->
     <div class="card" style="margin-top:14px;">
-      <h2>過去の記録</h2>
+      <h2><img src="icons/B_14.png" class="icon-sm">過去の記録</h2>
       <div class="history-list" id="cmp-history-list"><div class="history-empty">保存された記録はありません</div></div>
       <button class="csv-btn" onclick="exportCSV('compare')">📥 CSVエクスポート</button>
     </div>
