@@ -14,11 +14,79 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0a0a0f">
+<meta name="theme-color" content="#0a0a0f" id="theme-color-meta">
 <title>ジャグラー ぶどう確率シミュレータ v2</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #d8d8d8; min-height: 100vh; overscroll-behavior-y: contain; -webkit-text-size-adjust: 100%; }
+
+  /* ===== ライトモード ===== */
+  body.light { background: #f4f4f0; color: #1a1a1a; }
+  body.light .card { background: #ffffff; border-color: #ddd; }
+  body.light h2 { color: #b8900a; }
+  body.light h1 { color: #b8900a; }
+  body.light .subtitle { color: #888; }
+  body.light input[type="number"], body.light input[type="text"], body.light select { background: #f8f8f4; border-color: #ccc; color: #1a1a1a; }
+  body.light .stat-box { background: #f0f0ec; border-color: #ddd; }
+  body.light .stat-box .stat-label { color: #666; }
+  body.light .stat-box .stat-value { color: #b8900a; }
+  body.light .stat-box .stat-sub { color: #999; }
+  body.light .verdict-card { background: #fffff8; border-color: #b8900a; }
+  body.light .verdict-setting { color: #b8900a; }
+  body.light .verdict-label { color: #999; }
+  body.light .verdict-range { color: #1a1a1a; }
+  body.light .bar-track { background: #e0e0dc; }
+  body.light .bar-label { color: #666; }
+  body.light .bar-pct { color: #888; }
+  body.light .formula-box { background: #eef2ff; border-color: #b0c0e0; color: #334060; }
+  body.light .formula-box .comment { color: #8090b0; }
+  body.light .notice { background: #f0f0ec; color: #888; }
+  body.light .step { border-color: #e8e8e0; }
+  body.light .step-label { color: #888; }
+  body.light summary { color: #888; }
+  body.light summary:hover { color: #555; }
+  body.light .history-item:hover { background: #eeeeea; }
+  body.light .history-date { color: #999; }
+  body.light .history-title { color: #1a1a1a; }
+  body.light .history-summary { color: #888; }
+  body.light .history-empty { color: #aaa; }
+  body.light .mode-tab { background: #f0f0ec; border-color: #ddd; color: #888; }
+  body.light .mode-tab.active { background: #fffce8; border-color: #b8900a; color: #b8900a; }
+  body.light .spec-table th { background: #f0f0ec; color: #888; }
+  body.light .spec-table td { border-color: #eee; }
+  body.light .spec-table tr.spec-highlight td { background: #fffff0; color: #b8900a; }
+  body.light .mini-spec-table th { background: #f0f0ec; color: #888; }
+  body.light .mini-spec-table td { border-color: #eee; }
+  body.light .ps-tab { background: #f0f0ec; border-color: #ddd; color: #888; }
+  body.light .ps-tab.active { background: #fffff0; border-color: #b8900a; color: #b8900a; }
+  body.light .island-table th { background: #f0f0ec; color: #888; }
+  body.light .island-table td { border-color: #e8e8e0; }
+  body.light .island-table td input[type="number"] { background: #f8f8f4; border-color: #ccc; color: #1a1a1a; }
+  body.light .add-group-btn { background: #f0f0ec; border-color: #ddd; color: #888; }
+  body.light .budo-counter-wrap { border-color: #e0e0d8; }
+  body.light .budo-counter-label { color: #888; }
+  body.light .yakucount-wrap { border-color: #e0e0d8; }
+  body.light .yakucount-title { color: #666; }
+  body.light .yaku-name { color: #555; }
+  body.light .cherry-mode-wrap { border-color: #e0e0d8; }
+  body.light .cherry-mode-label { color: #888; }
+  body.light .cherry-btn { background: #f8f8f4; border-color: #ddd; color: #888; }
+  body.light .group-stat-row { border-color: #eee; }
+  body.light .group-stat-label { color: #888; }
+  body.light .group-stat-val { color: #1a1a1a; }
+  body.light .machine-result-row { border-color: #eee; }
+  body.light .machine-result-row .m-label { color: #666; }
+  body.light .budo-source-badge { background: #e8f0ff; color: #3060a0; }
+  body.light .mini-spec-note { color: #aaa; }
+  body.light .spec-item { background: #f0f0ec; border-color: #ddd; }
+  body.light .spec-item .spec-k { color: #888; }
+  body.light .spec-item .spec-v { color: #333; }
+
+  /* テーマトグルボタン */
+  #theme-toggle { position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); right: calc(14px + env(safe-area-inset-right, 0px)); z-index: 999; background: #1e1e2a; border: 1px solid #333; border-radius: 20px; padding: 6px 12px; font-size: 0.8rem; color: #aaa; cursor: pointer; transition: all .2s; }
+  #theme-toggle:hover { border-color: #f0c040; color: #f0c040; }
+  body.light #theme-toggle { background: #ffffff; border-color: #ccc; color: #666; }
+  body.light #theme-toggle:hover { border-color: #b8900a; color: #b8900a; }
   .container { max-width: 760px; margin: 0 auto; padding: calc(20px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px)) calc(40px + env(safe-area-inset-bottom, 0px)) calc(16px + env(safe-area-inset-left, 0px)); }
   h1 { text-align: center; color: #f0c040; font-size: 1.5rem; margin-bottom: 6px; letter-spacing: 1px; }
   .subtitle { text-align: center; font-size: 0.78rem; color: #666; margin-bottom: 22px; }
@@ -306,6 +374,8 @@
 </style>
 </head>
 <body>
+<button id="theme-toggle" onclick="toggleTheme()">☀️ ライト</button>
+
 <div class="container">
   <h1><span class="iico-lg ic-b04"></span> ぶどう確率シミュレータ</h1>
   <p class="subtitle">差枚逆算式 — 設定推定付き</p>
@@ -2433,7 +2503,32 @@ function initSuggestions() {
     cmpSaveBtn.addEventListener('click', saveCmpRecord);
     cmpSaveBtn.addEventListener('touchend', e => { e.preventDefault(); saveCmpRecord(); });
   }
+
+  // テーマ初期化
+  if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light');
+    const btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = '🌙 ダーク';
+    const meta = document.getElementById('theme-color-meta');
+    if (meta) meta.content = '#f4f4f0';
+  }
 })();
+
+function toggleTheme() {
+  const body = document.body;
+  const btn = document.getElementById('theme-toggle');
+  const meta = document.getElementById('theme-color-meta');
+  const isLight = body.classList.toggle('light');
+  if (isLight) {
+    localStorage.setItem('theme', 'light');
+    if (btn) btn.textContent = '🌙 ダーク';
+    if (meta) meta.content = '#f4f4f0';
+  } else {
+    localStorage.setItem('theme', 'dark');
+    if (btn) btn.textContent = '☀️ ライト';
+    if (meta) meta.content = '#0a0a0f';
+  }
+}
 </script>
 
 <div class="container" style="padding-top:0;padding-bottom:60px;">
