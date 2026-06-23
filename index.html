@@ -83,7 +83,8 @@
   body.light .spec-item .spec-v { color: #333; }
 
   /* テーマトグルボタン */
-  #theme-toggle { position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); right: calc(14px + env(safe-area-inset-right, 0px)); z-index: 999; background: #1e1e2a; border: 1px solid #333; border-radius: 20px; padding: 6px 12px; font-size: 0.8rem; color: #aaa; cursor: pointer; transition: all .2s; }
+  #theme-toggle-wrap { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+  #theme-toggle { background: #1e1e2a; border: 1px solid #333; border-radius: 20px; padding: 6px 12px; font-size: 0.8rem; color: #aaa; cursor: pointer; transition: all .2s; }
   #theme-toggle:hover { border-color: #f0c040; color: #f0c040; }
   body.light #theme-toggle { background: #ffffff; border-color: #ccc; color: #666; }
   body.light #theme-toggle:hover { border-color: #b8900a; color: #b8900a; }
@@ -374,9 +375,8 @@
 </style>
 </head>
 <body>
-<button id="theme-toggle" onclick="toggleTheme()">☀️ ライト</button>
-
 <div class="container">
+<div id="theme-toggle-wrap"><button id="theme-toggle" onclick="toggleTheme()">☀️ ライト</button></div>
   <h1><span class="iico-lg ic-b04"></span> ぶどう確率シミュレータ</h1>
   <p class="subtitle">差枚逆算式 — 設定推定付き</p>
   <p style="text-align:center;font-size:0.78rem;margin-bottom:10px;"><a href="https://note.com/nlp_mm/n/nb5bd54aa1170" target="_blank" rel="noopener" style="color:#f0c040;text-decoration:none;" onclick="gtag('event','note_click',{event_category:'outbound',event_label:'budo_note_header'});"><span class="iico ic-b01"></span> ぶどう確率の正しい読み方</a></p>
